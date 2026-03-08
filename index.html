@@ -1,1 +1,280 @@
-# encuesta-calidad-ushuaia visión
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BI Visión v21.1 - Cloud & Contact</title>
+    <style>
+        :root { --primary: #0056b3; --accent: #28a745; --danger: #dc3545; --warning: #f59e0b; --info: #17a2b8; --gold: #ffd700; --bg: #f4f7f6; }
+        body { font-family: 'Segoe UI', Tahoma, sans-serif; background: var(--bg); margin: 0; padding: 20px; display: flex; flex-direction: column; align-items: center; }
+        
+        .card { background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); width: 100%; max-width: 450px; }
+        h3 { color: var(--primary); text-align: center; margin: 0 0 10px 0; }
+        label { display: block; margin-top: 15px; font-weight: bold; color: #444; font-size: 13px; }
+        input, select, textarea, button { width: 100%; padding: 12px; margin-top: 8px; border: 1px solid #ddd; border-radius: 6px; font-size: 15px; box-sizing: border-box; }
+        
+        .rating { display: flex; justify-content: space-between; padding: 10px 0; }
+        .rating label { font-size: 14px; text-align: center; width: 18%; background: #eee; padding: 10px 0; border-radius: 6px; cursor: pointer; margin-top:0; }
+        input[type="radio"]:checked + label { background: var(--primary); color: white; }
+        input[type="radio"] { display: none; }
+        
+        #admin-view { margin-top: 20px; width: 100%; max-width: 1250px; display: none; background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        .bi-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; margin-bottom: 25px; }
+        .bi-card { padding: 15px; border-radius: 8px; text-align: center; color: white; }
+        .bi-total { background: var(--primary); } .bi-ventas { background: var(--accent); } .bi-fuga { background: var(--danger); } .bi-mercado { background: #6f42c1; }
+        .bi-card big { display: block; font-size: 28px; font-weight: bold; }
+        
+        .ia-search-box { background: #2c3e50; padding: 15px; border-radius: 8px; margin-bottom: 20px; display: flex; gap: 10px; color: white; align-items: center; }
+        .ia-search-box input { background: white; color: black; margin-top: 0; flex: 2; }
+
+        #reporte-asesor { display: none; background: #fff; padding: 20px; border-radius: 10px; margin-bottom: 20px; border: 1px solid #dee2e6; border-left: 8px solid var(--info); position: relative; }
+        .badge-pro { position: absolute; top: 15px; right: 20px; background: var(--gold); color: #333; padding: 6px 15px; border-radius: 20px; font-weight: bold; font-size: 11px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .progress-container { margin: 10px 0; background: #eee; border-radius: 10px; height: 12px; overflow: hidden; }
+        .progress-bar { height: 100%; background: var(--accent); transition: width 0.6s ease; }
+        
+        .tip-box { margin-top: 15px; padding: 12px; border-radius: 6px; font-size: 13px; line-height: 1.4; border-left: 5px solid #ccc; }
+        .tip-negative { background: #fff1f1; border-color: var(--danger); color: #842029; }
+        .tip-positive { background: #f0fff4; border-color: var(--accent); color: #1a4721; }
+
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+        th, td { padding: 12px; border: 1px solid #eee; text-align: left; font-size: 11px; }
+        th { background: #f8f9fa; }
+        .risk-row { background: #fff5f5 !important; }
+        
+        button { cursor: pointer; border: none; font-weight: bold; transition: 0.2s; }
+        #seccion-fuga, #seccion-contacto { display: none; margin-top: 15px; padding: 15px; border-radius: 8px; border: 1px dashed #ccc; }
+        #seccion-fuga { background: #fff8f0; border-color: var(--warning); }
+        #seccion-contacto { background: #f0f7ff; border-color: var(--primary); }
+
+        .live-indicator { font-size: 10px; color: var(--accent); font-weight: bold; text-align: right; margin-bottom: 5px; animation: blink 2s infinite; }
+        @keyframes blink { 0% { opacity: 1; } 50% { opacity: 0.3; } 100% { opacity: 1; } }
+    </style>
+</head>
+<body>
+
+    <div id="survey-view" class="card">
+        <h3 style="font-size: 20px; opacity: 0.5;">SISTEMA DE CALIDAD USHUAIA</h3>
+        <h3>Ushuaia Visión Te Escucha</h3>
+
+        <label>¿Quién te atendió?</label>
+        <select id="asesor" onchange="evaluar()">
+            <option value="">Seleccione...</option>
+            <option>PUESTO 1 - MIGUEL</option><option>PUESTO 2 - CAROLINA</option>
+            <option>PUESTO 3 - RODRIGO</option><option>PUESTO 4 - PAULA</option>
+            <option>PUESTO 5 - VICTORIA</option><option>PUESTO 6 - LARA</option>
+            <option>PUESTO 7 - EVELIN</option>
+        </select>
+
+        <label>Calificación de la atención:</label>
+        <div class="rating">
+            <input type="radio" name="star" id="s1" value="1" onclick="evaluar()"><label for="s1">1 ⭐</label>
+            <input type="radio" name="star" id="s2" value="2" onclick="evaluar()"><label for="s2">2 ⭐</label>
+            <input type="radio" name="star" id="s3" value="3" onclick="evaluar()"><label for="s3">3 ⭐</label>
+            <input type="radio" name="star" id="s4" value="4" onclick="evaluar()"><label for="s4">4 ⭐</label>
+            <input type="radio" name="star" id="s5" value="5" onclick="evaluar()"><label for="s5">5 ⭐</label>
+        </div>
+
+        <label>¿Resolvimos tu consulta?</label>
+        <select id="resuelto" onchange="evaluar()">
+            <option value="Si">Sí</option><option value="No">No</option>
+        </select>
+
+        <label>Comentarios adicionales:</label>
+        <textarea id="comentario" rows="2" placeholder="Ej: Precios, problemas técnicos, me ofrecieron otra empresa..." oninput="evaluar()"></textarea>
+
+        <div id="seccion-fuga">
+            <label>📊 Competencia mencionada:</label>
+            <select id="competencia">
+                <option value="Ninguna">Ninguna</option>
+                <option value="STARLINK">STARLINK</option><option value="SUPERCANAL">SUPERCANAL</option>
+                <option value="OOPS">OOPS</option><option value="AUSTRALNET">AUSTRALNET</option>
+                <option value="PERSONAL/MOVISTAR">PERSONAL / MOVISTAR</option>
+            </select>
+            <label>Propuesta detectada:</label>
+            <input type="text" id="oferta_comp" placeholder="Precio o plan ofrecido">
+        </div>
+
+        <div id="seccion-contacto">
+            <label>DNI o Celular (Para seguimiento):</label>
+            <input type="text" id="clienteId" placeholder="Ingrese su contacto">
+        </div>
+
+        <button id="btnEnviar" onclick="guardar()" style="background:var(--primary); color:white; margin-top:20px;">Enviar Encuesta</button>
+        <p onclick="abrirAdmin()" style="text-align:center; font-size:10px; color:#ccc; cursor:pointer; margin-top:20px;">⚙️ ACCESO DASHBOARD GERENCIAL</p>
+    </div>
+
+    <div id="admin-view">
+        <div class="live-indicator">● NUBE ACTIVA - TIEMPO REAL</div>
+        <h2 style="text-align:center; color:var(--primary); margin-top:0;">Control de Gestión & Talent BI</h2>
+        
+        <div class="ia-search-box">
+            <input type="text" id="search-input" placeholder="IA Search: Filtrar datos..." onkeyup="actualizarDash()">
+            <button onclick="descargarCSV()" style="width:auto; background:var(--accent); margin-top:0;">📊 Exportar Excel</button>
+        </div>
+
+        <div id="reporte-asesor">
+            <div id="badge-pro" class="badge-pro" style="display:none;">🏆 EXCELENCIA</div>
+            <h3 id="rep-nombre" style="text-align:left; color:var(--info); margin-bottom:5px;"></h3>
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:30px;">
+                <div>
+                    <span id="lab-satis" style="font-size:12px;"></span>
+                    <div class="progress-container"><div id="bar-satis" class="progress-bar"></div></div>
+                    <span id="lab-resol" style="font-size:12px;"></span>
+                    <div class="progress-container"><div id="bar-resol" class="progress-bar" style="background:var(--info);"></div></div>
+                </div>
+                <div>
+                    <span style="font-size: 11px; font-weight: bold; color: #666;">DIAGNÓSTICO AI DE GESTIÓN:</span>
+                    <div id="coaching-box" class="tip-box"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="bi-grid">
+            <div class="bi-card bi-total"><big id="stat-total">0</big><span>Encuestas</span></div>
+            <div class="bi-card bi-ventas"><big id="stat-ok">0</big><span>Resolución</span></div>
+            <div class="bi-card bi-fuga"><big id="stat-baja">0</big><span>Riesgos</span></div>
+            <div class="bi-card bi-mercado"><big id="stat-comp">0</big><span>Competencia</span></div>
+        </div>
+
+        <div style="background:#eee; padding:10px; border-radius:8px; display:flex; gap:10px; margin-bottom:15px;">
+            <select id="filterAsesor" onchange="actualizarDash()" style="margin:0; flex:1">
+                <option value="Todos">Global - Todos los Puestos</option>
+                <option>PUESTO 1 - MIGUEL</option><option>PUESTO 2 - CAROLINA</option>
+                <option>PUESTO 3 - RODRIGO</option><option>PUESTO 4 - PAULA</option>
+                <option>PUESTO 5 - VICTORIA</option><option>PUESTO 6 - LARA</option>
+                <option>PUESTO 7 - EVELIN</option>
+            </select>
+            <button onclick="cerrarAdmin()" style="margin:0; width:auto; background:#a51818; color:white;">Cerrar Panel</button>
+        </div>
+        
+        <table id="main-table">
+            <thead><tr><th>Fecha</th><th>Asesor</th><th>Pts</th><th>Resolución</th><th>Contacto</th><th>Empresa</th><th>Oferta</th><th>Comentario</th></tr></thead>
+            <tbody id="table-body"></tbody>
+        </table>
+    </div>
+
+    <script>
+        const FB_URL = "https://vision-bi-6bd64-default-rtdb.firebaseio.com/encuestas.json";
+        let logsGlobal = [];
+
+        window.onload = function() {
+            cargarDatosDesdeNube();
+            if (sessionStorage.getItem('isAdminActive') === 'true') { mostrarPanelAdmin(); }
+            setInterval(() => { if (sessionStorage.getItem('isAdminActive') === 'true') { cargarDatosDesdeNube(); } }, 15000);
+        };
+
+        async function cargarDatosDesdeNube() {
+            try {
+                const response = await fetch(FB_URL);
+                const data = await response.json();
+                logsGlobal = data ? Object.values(data) : [];
+                if (sessionStorage.getItem('isAdminActive') === 'true') { actualizarDash(); }
+            } catch (e) { console.error("Error nube", e); }
+        }
+
+        function evaluar() {
+            const st = document.querySelector('input[name="star"]:checked')?.value;
+            const re = document.getElementById('resuelto').value;
+            const t = document.getElementById('comentario').value.toLowerCase();
+            const esRiesgo = ["baja", "irme", "cancelar", "competencia", "starlink", "supercanal", "oops", "austral", "precio", "caro"].some(p => t.includes(p));
+            document.getElementById('seccion-fuga').style.display = esRiesgo ? 'block' : 'none';
+            document.getElementById('seccion-contacto').style.display = (st <= 3 || re === "No" || esRiesgo) ? 'block' : 'none';
+        }
+
+        async function guardar() {
+            const a = document.getElementById('asesor').value;
+            const s = document.querySelector('input[name="star"]:checked')?.value;
+            const c = document.getElementById('clienteId').value;
+            if(!a || !s) return alert("Completa los campos obligatorios.");
+
+            document.getElementById('btnEnviar').innerText = "Enviando...";
+            document.getElementById('btnEnviar').disabled = true;
+
+            const d = { 
+                fecha: new Date().toLocaleDateString(), 
+                asesor: a, satis: parseInt(s), 
+                resuelto: document.getElementById('resuelto').value, 
+                contacto: c || "N/A",
+                comentario: document.getElementById('comentario').value || "S/C", 
+                competencia: document.getElementById('competencia').value,
+                oferta: document.getElementById('oferta_comp').value || "N/A"
+            };
+
+            try {
+                await fetch(FB_URL, { method: 'POST', body: JSON.stringify(d) });
+                alert("✅ Encuesta enviada. ¡Gracias por tu tiempo!");
+                location.reload();
+            } catch (e) {
+                alert("Error de conexión.");
+                document.getElementById('btnEnviar').disabled = false;
+            }
+        }
+
+        function actualizarDash() {
+            const q = document.getElementById('search-input').value.toLowerCase();
+            const fAsesor = document.getElementById('filterAsesor').value;
+            const body = document.getElementById('table-body');
+            body.innerHTML = "";
+            let ok = 0, bajas = 0, comp = 0, sumaSatis = 0;
+
+            const filtrados = logsGlobal.filter(l => (JSON.stringify(l).toLowerCase().includes(q) && (fAsesor === "Todos" || l.asesor.includes(fAsesor))));
+            
+            filtrados.slice().reverse().forEach(l => {
+                sumaSatis += l.satis;
+                if(l.resuelto === "Si") ok++;
+                if(l.comentario.toLowerCase().includes("baja")) bajas++;
+                if(l.competencia !== "Ninguna") comp++;
+                body.innerHTML += `<tr class="${l.satis <= 2 ? 'risk-row' : ''}"><td>${l.fecha}</td><td>${l.asesor}</td><td>${l.satis}⭐</td><td>${l.resuelto}</td><td>${l.contacto || 'N/A'}</td><td>${l.competencia}</td><td>${l.oferta}</td><td>${l.comentario}</td></tr>`;
+            });
+
+            document.getElementById('stat-total').innerText = filtrados.length;
+            document.getElementById('stat-ok').innerText = ok;
+            document.getElementById('stat-baja').innerText = bajas;
+            document.getElementById('stat-comp').innerText = comp;
+
+            const rep = document.getElementById('reporte-asesor');
+            if(fAsesor !== "Todos" && filtrados.length > 0) {
+                const prom = (sumaSatis / filtrados.length).toFixed(1);
+                const efiv = ((ok / filtrados.length) * 100).toFixed(0);
+                rep.style.display = "block";
+                document.getElementById('rep-nombre').innerText = fAsesor;
+                document.getElementById('lab-satis').innerText = `Satisfacción: ${prom}/5⭐`;
+                document.getElementById('bar-satis').style.width = (prom * 20) + "%";
+                document.getElementById('lab-resol').innerText = `Eficiencia: ${efiv}%`;
+                document.getElementById('bar-resol').style.width = efiv + "%";
+                const coach = document.getElementById('coaching-box');
+                const badge = document.getElementById('badge-pro');
+                const txt = filtrados.map(l => l.comentario.toLowerCase()).join(" ");
+                if(prom >= 4.5 && efiv >= 85) {
+                    badge.style.display = "block";
+                    coach.className = "tip-box tip-positive";
+                    coach.innerHTML = "<b>Análisis AI:</b> Desempeño estelar. Referente en calidad.";
+                } else {
+                    badge.style.display = "none";
+                    if(txt.includes("tarde") || txt.includes("espera") || txt.includes("lento")) {
+                        coach.className = "tip-box tip-negative";
+                        coach.innerHTML = "<b>Diagnóstico AI:</b> Cuello de botella en agilidad.";
+                    } else if(txt.includes("entiendo") || txt.includes("duda") || txt.includes("claro")) {
+                        coach.className = "tip-box tip-negative";
+                        coach.innerHTML = "<b>Diagnóstico AI:</b> Falta claridad técnica.";
+                    } else {
+                        coach.className = "tip-box"; coach.style.background = "#f8f9fa";
+                        coach.innerHTML = "<b>Sugerencia:</b> Mantener foco en el cierre positivo.";
+                    }
+                }
+            } else { rep.style.display = "none"; }
+        }
+
+        function abrirAdmin() { if(prompt("Clave:") === "Vision2026") { sessionStorage.setItem('isAdminActive', 'true'); mostrarPanelAdmin(); } }
+        function mostrarPanelAdmin() { document.getElementById('survey-view').style.display='none'; document.getElementById('admin-view').style.display='block'; actualizarDash(); }
+        function cerrarAdmin() { sessionStorage.setItem('isAdminActive', 'false'); document.getElementById('admin-view').style.display='none'; document.getElementById('survey-view').style.display='block'; }
+        
+        function descargarCSV() {
+            let csv = "\uFEFFFecha;Asesor;Pts;Resolvio;Contacto;Empresa;Oferta;Comentario\n";
+            logsGlobal.forEach(l => { csv += `${l.fecha};${l.asesor};${l.satis};${l.resuelto};${l.contacto || 'N/A'};${l.competencia};${l.oferta};${l.comentario}\n`; });
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const a = document.createElement('a'); a.href = window.URL.createObjectURL(blob); a.download = 'BI_Vision_Ushuaia.csv'; a.click();
+        }
+    </script>
+</body>
+</html>
