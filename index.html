@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CALIDAD ATENCIÓN - USHUAIA VISIÓN</title>
+    <title>EXPERIENCIA AL CLIENTE - USHUAIA VISIÓN</title>
     <style>
         :root { --primary: #0056b3; --accent: #28a745; --danger: #dc3545; --warning: #f59e0b; --info: #17a2b8; --purple: #6f42c1; --gold: #ffd700; --bg: #f4f7f6; }
         body { font-family: 'Segoe UI', Tahoma, sans-serif; background: var(--bg); margin: 0; padding: 20px; display: flex; flex-direction: column; align-items: center; }
@@ -24,30 +24,26 @@
         .bi-total { background: var(--primary); } .bi-ventas { background: var(--accent); } .bi-fuga { background: var(--danger); } .bi-mercado { background: var(--purple); }
         .bi-card big { display: block; font-size: 28px; font-weight: bold; }
         
-        /* Tooltip para el porcentaje de competencia */
-        .bi-card .tooltip { visibility: hidden; width: 180px; background-color: #333; color: #fff; text-align: left; border-radius: 6px; padding: 10px; position: absolute; z-index: 1; bottom: 125%; left: 50%; margin-left: -90px; opacity: 0; transition: opacity 0.3s; font-size: 11px; line-height: 1.5; }
+        /* Tooltip de Competencia */
+        .bi-card .tooltip { visibility: hidden; width: 180px; background-color: #333; color: #fff; text-align: left; border-radius: 6px; padding: 10px; position: absolute; z-index: 10; bottom: 125%; left: 50%; margin-left: -90px; opacity: 0; transition: opacity 0.3s; font-size: 11px; line-height: 1.5; box-shadow: 0 4px 10px rgba(0,0,0,0.2); }
         .bi-card:hover .tooltip { visibility: visible; opacity: 1; }
 
         .ia-search-box { background: #2c3e50; padding: 15px; border-radius: 8px; margin-bottom: 20px; display: flex; gap: 10px; color: white; align-items: center; }
         .ia-search-box input { background: white; color: black; margin-top: 0; flex: 2; }
 
         #reporte-asesor { display: none; background: #fff; padding: 20px; border-radius: 10px; margin-bottom: 20px; border: 1px solid #dee2e6; border-left: 8px solid var(--info); position: relative; }
+        .badge-pro { position: absolute; top: 15px; right: 20px; background: var(--gold); color: #333; padding: 6px 15px; border-radius: 20px; font-weight: bold; font-size: 11px; }
         .progress-container { margin: 10px 0; background: #eee; border-radius: 10px; height: 12px; overflow: hidden; }
         .progress-bar { height: 100%; background: var(--accent); transition: width 0.6s ease; }
         
-        .tip-box { margin-top: 10px; padding: 12px; border-radius: 6px; font-size: 13px; line-height: 1.4; background: #f8f9fa; border-left: 4px solid #ccc; }
+        .tip-box { margin-top: 10px; padding: 12px; border-radius: 6px; font-size: 13px; line-height: 1.4; background: #f8f9fa; border-left: 4px solid #ccc; min-height: 50px; }
 
         table { width: 100%; border-collapse: collapse; margin-top: 15px; }
         th, td { padding: 12px; border: 1px solid #eee; text-align: left; font-size: 11px; }
         th { background: #f8f9fa; }
         
-        .risk-row-critical { background: #ffebeb !important; border-left: 5px solid var(--danger); } 
+        .risk-row-critical { background: #ffebeb !important; border-left: 5px solid var(--danger); font-weight: bold; } 
         .risk-row-warning { background: #fff9e6 !important; border-left: 5px solid var(--warning); }
-
-        button { cursor: pointer; border: none; font-weight: bold; transition: 0.2s; }
-        #seccion-fuga, #seccion-contacto { display: none; margin-top: 15px; padding: 15px; border-radius: 8px; border: 1px dashed #ccc; }
-        #seccion-fuga { background: #fff8f0; border-color: var(--warning); }
-        #seccion-contacto { background: #f0f7ff; border-color: var(--primary); }
 
         .live-indicator { font-size: 10px; color: var(--accent); font-weight: bold; text-align: right; margin-bottom: 5px; animation: blink 2s infinite; }
         @keyframes blink { 0% { opacity: 1; } 50% { opacity: 0.3; } 100% { opacity: 1; } }
@@ -57,7 +53,7 @@
 
     <div id="survey-view" class="card">
         <h3 style="font-size: 11px; opacity: 0.6; letter-spacing: 2px;">GESTIÓN DE CALIDAD - USHUAIA</h3>
-        <h3>Tu opinión nos ayuda a mejorar</h3>
+        <h3>Ayudanos a mejorar</h3>
 
         <label>¿Quién te atendió?</label>
         <select id="asesor" onchange="evaluar()">
@@ -79,7 +75,7 @@
 
         <label>¿Resolvimos tu consulta?</label>
         <select id="resuelto" onchange="evaluar()">
-            <option value="Si">Sí</option><option value="No">No</option>
+            <option value="Si">Sí, totalmente</option><option value="No">No, aún no</option>
         </select>
 
         <label>Comentarios adicionales:</label>
@@ -89,12 +85,18 @@
             <label>📊 Empresa competencia:</label>
             <select id="competencia">
                 <option value="Ninguna">Ninguna</option>
-                <option value="STARLINK">STARLINK</option><option value="SUPERCANAL">SUPERCANAL</option>
-                <option value="OOPS">OOPS</option><option value="AUSTRALNET">AUSTRALNET</option>
-                <option value="PERSONAL/MOVISTAR">PERSONAL / MOVISTAR</option>
+                <option value="STARLINK">STARLINK</option><option value="SUPERCANAL">SUPERCANAL / TV FUEGO</option>
+                <option value="OOPS">OOPS / AUSTRALNET</option><option value="PERSONAL/MOVISTAR">PERSONAL / MOVISTAR</option>
             </select>
-            <label>Oferta ofrecida por ellos:</label>
-            <input type="text" id="oferta_comp" placeholder="Monto o Plan">
+
+            <label>💰 ¿Qué precio le ofrecieron?</label>
+            <select id="oferta_comp">
+                <option value="N/A">Seleccione rango...</option>
+                <option value="Menos de $30.000">Menos de $30.000 (Promo agresiva)</option>
+                <option value="$30.000 - $45.000">$30.000 - $45.000 (Estándar Fibra)</option>
+                <option value="$45.000 - $65.000">$45.000 - $65.000 (Premium/Starlink)</option>
+                <option value="Mas de $65.000">Más de $65.000 (Pack Full)</option>
+            </select>
         </div>
 
         <div id="seccion-contacto">
@@ -102,16 +104,16 @@
             <input type="text" id="clienteId" placeholder="Tu número de contacto">
         </div>
 
-        <button id="btnEnviar" onclick="guardar()" style="background:var(--primary); color:white; margin-top:20px;">Enviar Encuesta</button>
+        <button id="btnEnviar" onclick="guardar()" style="background:var(--primary); color:white; margin-top:20px; font-weight:bold; height:50px;">Enviar Encuesta</button>
         <p onclick="abrirAdmin()" style="text-align:center; font-size:10px; color:#ccc; cursor:pointer; margin-top:20px;">⚙️ ACCESO DASHBOARD</p>
     </div>
 
     <div id="admin-view">
         <div class="live-indicator">● NUBE ACTIVA - TIEMPO REAL</div>
-        <h2 style="text-align:center; color:var(--primary); margin-top:0;">BI Visión: Inteligencia de Mercado</h2>
+        <h2 style="text-align:center; color:var(--primary); margin-top:0;">BI Visión: Inteligencia de Negocio</h2>
         
         <div class="ia-search-box">
-            <input type="text" id="search-input" placeholder="IA Search: Filtrar por cualquier dato..." onkeyup="actualizarDash()">
+            <input type="text" id="search-input" placeholder="Filtrar por cualquier dato o comentario..." onkeyup="actualizarDash()">
             <button onclick="descargarCSV()" style="width:auto; background:var(--accent); margin-top:0;">📊 Exportar CSV</button>
         </div>
 
@@ -121,11 +123,12 @@
             <div class="bi-card bi-fuga"><big id="stat-baja">0</big><span>Riesgos</span></div>
             <div class="bi-card bi-mercado" id="card-comp">
                 <big id="stat-comp">0</big><span>Competencia</span>
-                <div class="tooltip" id="market-share-list">Cargando datos...</div>
+                <div class="tooltip" id="market-share-list">Analizando mercado...</div>
             </div>
         </div>
 
         <div id="reporte-asesor">
+            <div id="badge-pro" class="badge-pro" style="display:none;">🏆 EXCELENCIA</div>
             <h3 id="rep-nombre" style="text-align:left; color:var(--info); margin-bottom:5px;"></h3>
             <div style="display:grid; grid-template-columns: 1fr 1fr; gap:30px;">
                 <div>
@@ -135,7 +138,7 @@
                     <div class="progress-container"><div id="bar-resol" class="progress-bar" style="background:var(--info);"></div></div>
                 </div>
                 <div>
-                    <span style="font-size: 11px; font-weight: bold; color: #666;">COACHING AI:</span>
+                    <span style="font-size: 11px; font-weight: bold; color: #666;">DIAGNÓSTICO AI DE GESTIÓN:</span>
                     <div id="coaching-box" class="tip-box"></div>
                 </div>
             </div>
@@ -143,13 +146,13 @@
 
         <div style="background:#eee; padding:10px; border-radius:8px; display:flex; gap:10px; margin-bottom:15px;">
             <select id="filterAsesor" onchange="actualizarDash()" style="margin:0; flex:1">
-                <option value="Todos">Filtro Global</option>
+                <option value="Todos">Global - Todos los Puestos</option>
                 <option>PUESTO 1 - MIGUEL</option><option>PUESTO 2 - CAROLINA</option>
                 <option>PUESTO 3 - RODRIGO</option><option>PUESTO 4 - PAULA</option>
                 <option>VENTAS - VICTORIA</option><option>VENTAS - LARA</option>
                 <option>VENTAS - EVELIN</option>
             </select>
-            <button onclick="cerrarAdmin()" style="margin:0; width:auto; background:#666; color:white;">Volver</button>
+            <button onclick="cerrarAdmin()" style="margin:0; width:auto; background:#666; color:white;">Cerrar Panel</button>
         </div>
         
         <table id="main-table">
@@ -181,7 +184,7 @@
             const st = document.querySelector('input[name="star"]:checked')?.value;
             const re = document.getElementById('resuelto').value;
             const t = document.getElementById('comentario').value.toLowerCase();
-            const esRiesgo = ["baja", "cancelar", "irme", "competencia", "starlink", "oops", "caro"].some(p => t.includes(p));
+            const esRiesgo = ["baja", "cancelar", "irme", "competencia", "starlink", "oops", "caro", "precio"].some(p => t.includes(p));
             document.getElementById('seccion-fuga').style.display = esRiesgo ? 'block' : 'none';
             document.getElementById('seccion-contacto').style.display = (st <= 3 || re === "No" || esRiesgo) ? 'block' : 'none';
         }
@@ -189,7 +192,10 @@
         async function guardar() {
             const a = document.getElementById('asesor').value;
             const s = document.querySelector('input[name="star"]:checked')?.value;
-            if(!a || !s) return alert("Selecciona asesor y calificación.");
+            if(!a || !s) return alert("Por favor, selecciona asesor y puntaje.");
+
+            document.getElementById('btnEnviar').innerText = "Guardando...";
+            document.getElementById('btnEnviar').disabled = true;
 
             const d = { 
                 fecha: new Date().toLocaleDateString(), 
@@ -203,9 +209,9 @@
 
             try {
                 await fetch(FB_URL, { method: 'POST', body: JSON.stringify(d) });
-                alert("Enviado correctamente.");
+                alert("Opinión registrada con éxito.");
                 location.reload();
-            } catch (e) { alert("Error de conexión."); }
+            } catch (e) { alert("Error de red."); document.getElementById('btnEnviar').disabled = false; }
         }
 
         function actualizarDash() {
@@ -240,48 +246,57 @@
                 </tr>`;
             });
 
-            // Actualizar Contadores
             document.getElementById('stat-total').innerText = filtrados.length;
             document.getElementById('stat-ok').innerText = ok;
             document.getElementById('stat-baja').innerText = riesgosBaja;
             document.getElementById('stat-comp').innerText = compCount;
 
-            // --- LÓGICA DE MARKET SHARE (TOOLTIP) ---
-            let shareHtml = "<b>Distribución de Competencia:</b><br>";
+            // --- REPORTE MARKET SHARE ---
+            let shareHtml = "<b>Menciones de Competencia:</b><br>";
             if(compCount > 0) {
                 for (let emp in mktShare) {
                     let porc = ((mktShare[emp] / compCount) * 100).toFixed(0);
                     shareHtml += `• ${emp}: ${porc}%<br>`;
                 }
-            } else { shareHtml = "No hay menciones de competencia."; }
+            } else { shareHtml = "Sin datos de competencia aún."; }
             document.getElementById('market-share-list').innerHTML = shareHtml;
 
-            // --- LÓGICA COACHING AI ---
+            // --- REPORTE ASESOR Y DIAGNÓSTICO AI ---
             const rep = document.getElementById('reporte-asesor');
             if(fAsesor !== "Todos" && filtrados.length > 0) {
                 const prom = (sumaSatis / filtrados.length).toFixed(1);
                 const efiv = ((ok / filtrados.length) * 100).toFixed(0);
                 rep.style.display = "block";
                 document.getElementById('rep-nombre').innerText = fAsesor;
-                document.getElementById('lab-satis').innerText = `Satis: ${prom}/5⭐`;
+                document.getElementById('lab-satis').innerText = `Calidad: ${prom}/5⭐`;
                 document.getElementById('bar-satis').style.width = (prom * 20) + "%";
-                document.getElementById('lab-resol').innerText = `Resol: ${efiv}%`;
+                document.getElementById('lab-resol').innerText = `Efectividad: ${efiv}%`;
                 document.getElementById('bar-resol').style.width = efiv + "%";
 
                 const coach = document.getElementById('coaching-box');
+                const badge = document.getElementById('badge-pro');
                 const feedbackText = filtrados.map(l => l.comentario.toLowerCase()).join(" ");
+                const preciosText = filtrados.map(l => l.oferta).join(" ");
                 
                 if(prom >= 4.5 && efiv >= 85) {
-                    coach.innerHTML = "<b>Análisis AI:</b> Nivel experto. Sin fugas detectadas.";
-                } else if(feedbackText.includes("oops") || feedbackText.includes("starlink")) {
-                    coach.innerHTML = "<b>Alerta de Mercado:</b> El asesor está perdiendo terreno frente a la competencia local. Reforzar comparativa de beneficios.";
+                    badge.style.display = "block";
+                    coach.innerHTML = "<b>Análisis AI:</b> Desempeño sobresaliente. Continúe con el estándar actual.";
                 } else {
-                    coach.innerHTML = "<b>Sugerencia:</b> Revisar tiempos de respuesta. El cliente valora la agilidad.";
+                    badge.style.display = "none";
+                    if(preciosText.includes("Menos de $30.000")) {
+                        coach.innerHTML = "<b>⚠️ ALERTA DE MERCADO:</b> Se detectaron ofertas agresivas por debajo de los $30.000. Reforzar comparativa de valor agregado.";
+                    } else if(feedbackText.includes("caro") || feedbackText.includes("baja")) {
+                        coach.innerHTML = "<b>Prioridad de Retención:</b> El cliente menciona costos altos. Se sugiere ofrecer plan de fidelización.";
+                    } else if(efiv < 60) {
+                        coach.innerHTML = "<b>Foco en Resolución:</b> Bajo índice de cierre. Revisar procesos técnicos con el equipo.";
+                    } else {
+                        coach.innerHTML = "<b>Sugerencia:</b> Mejorar el acompañamiento final para subir el promedio de satisfacción.";
+                    }
                 }
             } else { rep.style.display = "none"; }
         }
 
-        function abrirAdmin() { if(prompt("Clave:") === "Vision2026") { sessionStorage.setItem('isAdminActive', 'true'); mostrarPanelAdmin(); } }
+        function abrirAdmin() { if(prompt("Clave Gerencial:") === "Vision2026") { sessionStorage.setItem('isAdminActive', 'true'); mostrarPanelAdmin(); } }
         function mostrarPanelAdmin() { document.getElementById('survey-view').style.display='none'; document.getElementById('admin-view').style.display='block'; actualizarDash(); }
         function cerrarAdmin() { sessionStorage.setItem('isAdminActive', 'false'); document.getElementById('admin-view').style.display='none'; document.getElementById('survey-view').style.display='block'; }
         
@@ -289,7 +304,7 @@
             let csv = "\uFEFFFecha;Asesor;Pts;Resolvio;Contacto;Empresa;Oferta;Comentario\n";
             logsGlobal.forEach(l => { csv += `${l.fecha};${l.asesor};${l.satis};${l.resuelto};${l.contacto};${l.competencia};${l.oferta};${l.comentario}\n`; });
             const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-            const a = document.createElement('a'); a.href = window.URL.createObjectURL(blob); a.download = 'Vision_Ushuaia_Reporte.csv'; a.click();
+            const a = document.createElement('a'); a.href = window.URL.createObjectURL(blob); a.download = 'Reporte_Vision_BI.csv'; a.click();
         }
     </script>
 </body>
