@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CALIDAD DE ATENCIÓN-USHUAIA VISIÓN</title>
+    <title>BI Visión v22.0 - Alert System</title>
     <style>
         :root { --primary: #0056b3; --accent: #28a745; --danger: #dc3545; --warning: #f59e0b; --info: #17a2b8; --gold: #ffd700; --bg: #f4f7f6; }
         body { font-family: 'Segoe UI', Tahoma, sans-serif; background: var(--bg); margin: 0; padding: 20px; display: flex; flex-direction: column; align-items: center; }
@@ -32,15 +32,14 @@
         .progress-container { margin: 10px 0; background: #eee; border-radius: 10px; height: 12px; overflow: hidden; }
         .progress-bar { height: 100%; background: var(--accent); transition: width 0.6s ease; }
         
-        .tip-box { margin-top: 15px; padding: 12px; border-radius: 6px; font-size: 13px; line-height: 1.4; border-left: 5px solid #ccc; }
-        .tip-negative { background: #fff1f1; border-color: var(--danger); color: #842029; }
-        .tip-positive { background: #f0fff4; border-color: var(--accent); color: #1a4721; }
-
         table { width: 100%; border-collapse: collapse; margin-top: 15px; }
         th, td { padding: 12px; border: 1px solid #eee; text-align: left; font-size: 11px; }
         th { background: #f8f9fa; }
-        .risk-row { background: #fff5f5 !important; }
         
+        /* ESTILOS DE ALERTA EN LA TABLA */
+        .risk-row-critical { background: #ffebeb !important; border-left: 5px solid var(--danger); font-weight: bold; } /* ROJO: Fuga/Baja */
+        .risk-row-warning { background: #fff9e6 !important; border-left: 5px solid var(--warning); } /* AMARILLO: Mala nota */
+
         button { cursor: pointer; border: none; font-weight: bold; transition: 0.2s; }
         #seccion-fuga, #seccion-contacto { display: none; margin-top: 15px; padding: 15px; border-radius: 8px; border: 1px dashed #ccc; }
         #seccion-fuga { background: #fff8f0; border-color: var(--warning); }
@@ -53,8 +52,8 @@
 <body>
 
     <div id="survey-view" class="card">
-        <h3 style="font-size: 20px; opacity: 0.5;">SISTEMA DE CALIDAD USHUAIA</h3>
-        <h3>Ushuaia Visión Te Escucha</h3>
+        <h3 style="font-size: 12px; opacity: 0.5; letter-spacing: 2px;">USHUAIA VISIÓN - CALIDAD</h3>
+        <h3>Tu opinión nos ayuda</h3>
 
         <label>¿Quién te atendió?</label>
         <select id="asesor" onchange="evaluar()">
@@ -108,7 +107,7 @@
         <h2 style="text-align:center; color:var(--primary); margin-top:0;">Control de Gestión & Talent BI</h2>
         
         <div class="ia-search-box">
-            <input type="text" id="search-input" placeholder="IA Search: Filtrar datos..." onkeyup="actualizarDash()">
+            <input type="text" id="search-input" placeholder="Filtrar por nombre, comentario o DNI..." onkeyup="actualizarDash()">
             <button onclick="descargarCSV()" style="width:auto; background:var(--accent); margin-top:0;">📊 Exportar Excel</button>
         </div>
 
@@ -124,7 +123,7 @@
                 </div>
                 <div>
                     <span style="font-size: 11px; font-weight: bold; color: #666;">DIAGNÓSTICO AI DE GESTIÓN:</span>
-                    <div id="coaching-box" class="tip-box"></div>
+                    <div id="coaching-box" style="font-size: 13px; margin-top: 10px; color: #333;"></div>
                 </div>
             </div>
         </div>
@@ -144,11 +143,11 @@
                 <option>VENTAS - VICTORIA</option><option>VENTAS - LARA</option>
                 <option>VENTAS - EVELIN</option>
             </select>
-            <button onclick="cerrarAdmin()" style="margin:0; width:auto; background:#a51818; color:white;">Cerrar Panel</button>
+            <button onclick="cerrarAdmin()" style="margin:0; width:auto; background:#666; color:white;">Cerrar Panel</button>
         </div>
         
         <table id="main-table">
-            <thead><tr><th>Fecha</th><th>Asesor</th><th>Pts</th><th>Resolución</th><th>Contacto</th><th>Empresa</th><th>Oferta</th><th>Comentario</th></tr></thead>
+            <thead><tr><th>Fecha</th><th>Asesor</th><th>Pts</th><th>Resol.</th><th>Contacto</th><th>Competencia</th><th>Oferta</th><th>Comentario</th></tr></thead>
             <tbody id="table-body"></tbody>
         </table>
     </div>
@@ -176,7 +175,8 @@
             const st = document.querySelector('input[name="star"]:checked')?.value;
             const re = document.getElementById('resuelto').value;
             const t = document.getElementById('comentario').value.toLowerCase();
-            const esRiesgo = ["baja", "irme", "cancelar", "competencia", "starlink", "supercanal", "oops", "austral", "precio", "caro"].some(p => t.includes(p));
+            const palabrasClave = ["baja", "irme", "cancelar", "competencia", "starlink", "supercanal", "oops", "austral", "precio", "caro", "movistar", "personal"];
+            const esRiesgo = palabrasClave.some(p => t.includes(p));
             document.getElementById('seccion-fuga').style.display = esRiesgo ? 'block' : 'none';
             document.getElementById('seccion-contacto').style.display = (st <= 3 || re === "No" || esRiesgo) ? 'block' : 'none';
         }
@@ -202,7 +202,7 @@
 
             try {
                 await fetch(FB_URL, { method: 'POST', body: JSON.stringify(d) });
-                alert("✅ Encuesta enviada. ¡Gracias por tu tiempo!");
+                alert("✅ Encuesta enviada correctamente.");
                 location.reload();
             } catch (e) {
                 alert("Error de conexión.");
@@ -215,53 +215,56 @@
             const fAsesor = document.getElementById('filterAsesor').value;
             const body = document.getElementById('table-body');
             body.innerHTML = "";
-            let ok = 0, bajas = 0, comp = 0, sumaSatis = 0;
+            let ok = 0, riesgosBaja = 0, comp = 0, sumaSatis = 0;
 
             const filtrados = logsGlobal.filter(l => (JSON.stringify(l).toLowerCase().includes(q) && (fAsesor === "Todos" || l.asesor.includes(fAsesor))));
             
             filtrados.slice().reverse().forEach(l => {
                 sumaSatis += l.satis;
+                const txt = l.comentario.toLowerCase();
+                const esBaja = ["baja", "cancelar", "irme", "competencia", "oops", "starlink"].some(p => txt.includes(p));
+                const esMalaNota = l.satis <= 2;
+
                 if(l.resuelto === "Si") ok++;
-                if(l.comentario.toLowerCase().includes("baja")) bajas++;
+                if(esBaja) riesgosBaja++;
                 if(l.competencia !== "Ninguna") comp++;
-                body.innerHTML += `<tr class="${l.satis <= 2 ? 'risk-row' : ''}"><td>${l.fecha}</td><td>${l.asesor}</td><td>${l.satis}⭐</td><td>${l.resuelto}</td><td>${l.contacto || 'N/A'}</td><td>${l.competencia}</td><td>${l.oferta}</td><td>${l.comentario}</td></tr>`;
+
+                // LÓGICA DE COLORES DE FILA
+                let claseFila = "";
+                if(esBaja) {
+                    claseFila = "risk-row-critical"; // ROJO
+                } else if(esMalaNota) {
+                    claseFila = "risk-row-warning"; // AMARILLO
+                }
+
+                body.innerHTML += `<tr class="${claseFila}">
+                    <td>${l.fecha}</td>
+                    <td>${l.asesor}</td>
+                    <td>${l.satis}⭐</td>
+                    <td>${l.resuelto}</td>
+                    <td>${l.contacto}</td>
+                    <td>${l.competencia}</td>
+                    <td>${l.oferta}</td>
+                    <td>${l.comentario}</td>
+                </tr>`;
             });
 
             document.getElementById('stat-total').innerText = filtrados.length;
             document.getElementById('stat-ok').innerText = ok;
-            document.getElementById('stat-baja').innerText = bajas;
+            document.getElementById('stat-baja').innerText = riesgosBaja;
             document.getElementById('stat-comp').innerText = comp;
 
+            // Reporte de asesor (igual que antes)
             const rep = document.getElementById('reporte-asesor');
             if(fAsesor !== "Todos" && filtrados.length > 0) {
                 const prom = (sumaSatis / filtrados.length).toFixed(1);
                 const efiv = ((ok / filtrados.length) * 100).toFixed(0);
                 rep.style.display = "block";
                 document.getElementById('rep-nombre').innerText = fAsesor;
-                document.getElementById('lab-satis').innerText = `Satisfacción: ${prom}/5⭐`;
+                document.getElementById('lab-satis').innerText = `Satis: ${prom}/5⭐`;
                 document.getElementById('bar-satis').style.width = (prom * 20) + "%";
-                document.getElementById('lab-resol').innerText = `Eficiencia: ${efiv}%`;
+                document.getElementById('lab-resol').innerText = `Resol: ${efiv}%`;
                 document.getElementById('bar-resol').style.width = efiv + "%";
-                const coach = document.getElementById('coaching-box');
-                const badge = document.getElementById('badge-pro');
-                const txt = filtrados.map(l => l.comentario.toLowerCase()).join(" ");
-                if(prom >= 4.5 && efiv >= 85) {
-                    badge.style.display = "block";
-                    coach.className = "tip-box tip-positive";
-                    coach.innerHTML = "<b>Análisis AI:</b> Desempeño estelar. Referente en calidad.";
-                } else {
-                    badge.style.display = "none";
-                    if(txt.includes("tarde") || txt.includes("espera") || txt.includes("lento")) {
-                        coach.className = "tip-box tip-negative";
-                        coach.innerHTML = "<b>Diagnóstico AI:</b> Cuello de botella en agilidad.";
-                    } else if(txt.includes("entiendo") || txt.includes("duda") || txt.includes("claro")) {
-                        coach.className = "tip-box tip-negative";
-                        coach.innerHTML = "<b>Diagnóstico AI:</b> Falta claridad técnica.";
-                    } else {
-                        coach.className = "tip-box"; coach.style.background = "#f8f9fa";
-                        coach.innerHTML = "<b>Sugerencia:</b> Mantener foco en el cierre positivo.";
-                    }
-                }
             } else { rep.style.display = "none"; }
         }
 
@@ -271,7 +274,7 @@
         
         function descargarCSV() {
             let csv = "\uFEFFFecha;Asesor;Pts;Resolvio;Contacto;Empresa;Oferta;Comentario\n";
-            logsGlobal.forEach(l => { csv += `${l.fecha};${l.asesor};${l.satis};${l.resuelto};${l.contacto || 'N/A'};${l.competencia};${l.oferta};${l.comentario}\n`; });
+            logsGlobal.forEach(l => { csv += `${l.fecha};${l.asesor};${l.satis};${l.resuelto};${l.contacto};${l.competencia};${l.oferta};${l.comentario}\n`; });
             const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
             const a = document.createElement('a'); a.href = window.URL.createObjectURL(blob); a.download = 'BI_Vision_Ushuaia.csv'; a.click();
         }
