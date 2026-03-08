@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BI Visión v22.1 - Ushuaia Cloud</title>
+    <title>CALIDAD DE ATENCIÓN - USHUAIA VISIÓN</title>
     <style>
         :root { --primary: #0056b3; --accent: #28a745; --danger: #dc3545; --warning: #f59e0b; --info: #17a2b8; --gold: #ffd700; --bg: #f4f7f6; }
         body { font-family: 'Segoe UI', Tahoma, sans-serif; background: var(--bg); margin: 0; padding: 20px; display: flex; flex-direction: column; align-items: center; }
@@ -116,3 +116,177 @@
         <div id="reporte-asesor">
             <div id="badge-pro" class="badge-pro" style="display:none;">🏆 EXCELENCIA</div>
             <h3 id="rep-nombre" style="text-align:left; color:var(--info); margin-bottom:5px;"></h3>
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:30px;">
+                <div>
+                    <span id="lab-satis" style="font-size:12px;"></span>
+                    <div class="progress-container"><div id="bar-satis" class="progress-bar"></div></div>
+                    <span id="lab-resol" style="font-size:12px;"></span>
+                    <div class="progress-container"><div id="bar-resol" class="progress-bar" style="background:var(--info);"></div></div>
+                </div>
+                <div>
+                    <span style="font-size: 11px; font-weight: bold; color: #666;">DIAGNÓSTICO AI DE GESTIÓN:</span>
+                    <div id="coaching-box" class="tip-box"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="bi-grid">
+            <div class="bi-card bi-total"><big id="stat-total">0</big><span>Muestras</span></div>
+            <div class="bi-card bi-ventas"><big id="stat-ok">0</big><span>Resolución</span></div>
+            <div class="bi-card bi-fuga"><big id="stat-baja">0</big><span>Riesgos</span></div>
+            <div class="bi-card bi-mercado"><big id="stat-comp">0</big><span>Competencia</span></div>
+        </div>
+
+        <div style="background:#eee; padding:10px; border-radius:8px; display:flex; gap:10px; margin-bottom:15px;">
+            <select id="filterAsesor" onchange="actualizarDash()" style="margin:0; flex:1">
+                <option value="Todos">Global - Todos los Puestos</option>
+                <option>PUESTO 1 - MIGUEL</option><option>PUESTO 2 - CAROLINA</option>
+                <option>PUESTO 3 - RODRIGO</option><option>PUESTO 4 - PAULA</option>
+                <option>VENTAS - VICTORIA</option><option>VENTAS - LARA</option>
+                <option>VENTAS - EVELIN</option>
+            </select>
+            <button onclick="cerrarAdmin()" style="margin:0; width:auto; background:#666; color:white;">Cerrar Panel</button>
+        </div>
+        
+        <table id="main-table">
+            <thead><tr><th>Fecha</th><th>Asesor</th><th>Pts</th><th>Resol.</th><th>Contacto</th><th>Empresa</th><th>Oferta</th><th>Comentario</th></tr></thead>
+            <tbody id="table-body"></tbody>
+        </table>
+    </div>
+
+    <script>
+        const FB_URL = "https://vision-bi-6bd64-default-rtdb.firebaseio.com/encuestas.json";
+        let logsGlobal = [];
+
+        window.onload = function() {
+            cargarDatosDesdeNube();
+            if (sessionStorage.getItem('isAdminActive') === 'true') { mostrarPanelAdmin(); }
+            setInterval(() => { if (sessionStorage.getItem('isAdminActive') === 'true') { cargarDatosDesdeNube(); } }, 10000);
+        };
+
+        async function cargarDatosDesdeNube() {
+            try {
+                const response = await fetch(FB_URL);
+                const data = await response.json();
+                logsGlobal = data ? Object.values(data) : [];
+                if (sessionStorage.getItem('isAdminActive') === 'true') { actualizarDash(); }
+            } catch (e) { console.error("Error nube", e); }
+        }
+
+        function evaluar() {
+            const st = document.querySelector('input[name="star"]:checked')?.value;
+            const re = document.getElementById('resuelto').value;
+            const t = document.getElementById('comentario').value.toLowerCase();
+            const esRiesgo = ["baja", "cancelar", "irme", "competencia", "starlink", "oops", "caro", "precio", "movistar"].some(p => t.includes(p));
+            document.getElementById('seccion-fuga').style.display = esRiesgo ? 'block' : 'none';
+            document.getElementById('seccion-contacto').style.display = (st <= 3 || re === "No" || esRiesgo) ? 'block' : 'none';
+        }
+
+        async function guardar() {
+            const a = document.getElementById('asesor').value;
+            const s = document.querySelector('input[name="star"]:checked')?.value;
+            if(!a || !s) return alert("Por favor, selecciona asesor y puntaje.");
+
+            document.getElementById('btnEnviar').innerText = "Procesando...";
+            document.getElementById('btnEnviar').disabled = true;
+
+            const d = { 
+                fecha: new Date().toLocaleDateString(), 
+                asesor: a, satis: parseInt(s), 
+                resuelto: document.getElementById('resuelto').value, 
+                contacto: document.getElementById('clienteId').value || "N/A",
+                comentario: document.getElementById('comentario').value || "S/C", 
+                competencia: document.getElementById('competencia').value,
+                oferta: document.getElementById('oferta_comp').value || "N/A"
+            };
+
+            try {
+                await fetch(FB_URL, { method: 'POST', body: JSON.stringify(d) });
+                alert("¡Gracias! Tu opinión fue registrada en tiempo real.");
+                location.reload();
+            } catch (e) {
+                alert("Error de conexión con la nube.");
+                document.getElementById('btnEnviar').disabled = false;
+            }
+        }
+
+        function actualizarDash() {
+            const q = document.getElementById('search-input').value.toLowerCase();
+            const fAsesor = document.getElementById('filterAsesor').value;
+            const body = document.getElementById('table-body');
+            body.innerHTML = "";
+            let ok = 0, riesgosBaja = 0, comp = 0, sumaSatis = 0;
+
+            const filtrados = logsGlobal.filter(l => (JSON.stringify(l).toLowerCase().includes(q) && (fAsesor === "Todos" || l.asesor.includes(fAsesor))));
+            
+            filtrados.slice().reverse().forEach(l => {
+                sumaSatis += l.satis;
+                const txt = l.comentario.toLowerCase();
+                const esBaja = ["baja", "cancelar", "irme", "competencia", "oops", "caro"].some(p => txt.includes(p));
+                const esMalaNota = l.satis <= 2;
+
+                if(l.resuelto === "Si") ok++;
+                if(esBaja) riesgosBaja++;
+                if(l.competencia !== "Ninguna") comp++;
+
+                let claseFila = (esBaja) ? "risk-row-critical" : (esMalaNota) ? "risk-row-warning" : "";
+
+                body.innerHTML += `<tr class="${claseFila}">
+                    <td>${l.fecha}</td><td>${l.asesor}</td><td>${l.satis}⭐</td>
+                    <td>${l.resuelto}</td><td>${l.contacto}</td><td>${l.competencia}</td>
+                    <td>${l.oferta}</td><td>${l.comentario}</td>
+                </tr>`;
+            });
+
+            document.getElementById('stat-total').innerText = filtrados.length;
+            document.getElementById('stat-ok').innerText = ok;
+            document.getElementById('stat-baja').innerText = riesgosBaja;
+            document.getElementById('stat-comp').innerText = comp;
+
+            const rep = document.getElementById('reporte-asesor');
+            if(fAsesor !== "Todos" && filtrados.length > 0) {
+                const prom = (sumaSatis / filtrados.length).toFixed(1);
+                const efiv = ((ok / filtrados.length) * 100).toFixed(0);
+                rep.style.display = "block";
+                document.getElementById('rep-nombre').innerText = fAsesor;
+                document.getElementById('lab-satis').innerText = `Calidad Media: ${prom}/5⭐`;
+                document.getElementById('bar-satis').style.width = (prom * 20) + "%";
+                document.getElementById('lab-resol').innerText = `Efectividad: ${efiv}%`;
+                document.getElementById('bar-resol').style.width = efiv + "%";
+
+                // --- LÓGICA DIAGNÓSTICO AI ---
+                const coach = document.getElementById('coaching-box');
+                const badge = document.getElementById('badge-pro');
+                const feedbackText = filtrados.map(l => l.comentario.toLowerCase()).join(" ");
+                
+                if(prom >= 4.5 && efiv >= 85) {
+                    badge.style.display = "block";
+                    coach.innerHTML = "<b>Análisis AI:</b> Desempeño sobresaliente. Referente en calidad y resolución técnica.";
+                } else {
+                    badge.style.display = "none";
+                    if(feedbackText.includes("baja") || feedbackText.includes("caro") || feedbackText.includes("oops")) {
+                        coach.innerHTML = "<b>Alerta Crítica:</b> Se detectan múltiples consultas por competencia o costos. Reforzar técnicas de retención.";
+                    } else if(efiv < 50) {
+                        coach.innerHTML = "<b>Foco en Resolución:</b> Gran parte de las consultas quedan abiertas. Revisar procesos de soporte.";
+                    } else if(prom < 3.5) {
+                        coach.innerHTML = "<b>Foco en Soft Skills:</b> El cliente percibe una atención mejorable. Trabajar en empatía y escucha activa.";
+                    } else {
+                        coach.innerHTML = "<b>Sugerencia:</b> Mantener el estándar de atención y asegurar el cierre positivo de cada ticket.";
+                    }
+                }
+            } else { rep.style.display = "none"; }
+        }
+
+        function abrirAdmin() { if(prompt("Clave Gerencial:") === "Vision2026") { sessionStorage.setItem('isAdminActive', 'true'); mostrarPanelAdmin(); } }
+        function mostrarPanelAdmin() { document.getElementById('survey-view').style.display='none'; document.getElementById('admin-view').style.display='block'; actualizarDash(); }
+        function cerrarAdmin() { sessionStorage.setItem('isAdminActive', 'false'); document.getElementById('admin-view').style.display='none'; document.getElementById('survey-view').style.display='block'; }
+        
+        function descargarCSV() {
+            let csv = "\uFEFFFecha;Asesor;Pts;Resolvio;Contacto;Empresa;Oferta;Comentario\n";
+            logsGlobal.forEach(l => { csv += `${l.fecha};${l.asesor};${l.satis};${l.resuelto};${l.contacto};${l.competencia};${l.oferta};${l.comentario}\n`; });
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const a = document.createElement('a'); a.href = window.URL.createObjectURL(blob); a.download = 'BI_Vision_Ushuaia.csv'; a.click();
+        }
+    </script>
+</body>
+</html>
