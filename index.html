@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CALIDAD DE ATENCIÓN - USHUAIA VISIÓN</title>
+    <title>CALIDAD ATENCIÓN - USHUAIA VISIÓN</title>
     <style>
-        :root { --primary: #0056b3; --accent: #28a745; --danger: #dc3545; --warning: #f59e0b; --info: #17a2b8; --gold: #ffd700; --bg: #f4f7f6; }
+        :root { --primary: #0056b3; --accent: #28a745; --danger: #dc3545; --warning: #f59e0b; --info: #17a2b8; --purple: #6f42c1; --gold: #ffd700; --bg: #f4f7f6; }
         body { font-family: 'Segoe UI', Tahoma, sans-serif; background: var(--bg); margin: 0; padding: 20px; display: flex; flex-direction: column; align-items: center; }
         
         .card { background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); width: 100%; max-width: 450px; }
@@ -20,15 +20,18 @@
         
         #admin-view { margin-top: 20px; width: 100%; max-width: 1250px; display: none; background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
         .bi-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; margin-bottom: 25px; }
-        .bi-card { padding: 15px; border-radius: 8px; text-align: center; color: white; }
-        .bi-total { background: var(--primary); } .bi-ventas { background: var(--accent); } .bi-fuga { background: var(--danger); } .bi-mercado { background: #6f42c1; }
+        .bi-card { padding: 15px; border-radius: 8px; text-align: center; color: white; position: relative; cursor: help; }
+        .bi-total { background: var(--primary); } .bi-ventas { background: var(--accent); } .bi-fuga { background: var(--danger); } .bi-mercado { background: var(--purple); }
         .bi-card big { display: block; font-size: 28px; font-weight: bold; }
         
+        /* Tooltip para el porcentaje de competencia */
+        .bi-card .tooltip { visibility: hidden; width: 180px; background-color: #333; color: #fff; text-align: left; border-radius: 6px; padding: 10px; position: absolute; z-index: 1; bottom: 125%; left: 50%; margin-left: -90px; opacity: 0; transition: opacity 0.3s; font-size: 11px; line-height: 1.5; }
+        .bi-card:hover .tooltip { visibility: visible; opacity: 1; }
+
         .ia-search-box { background: #2c3e50; padding: 15px; border-radius: 8px; margin-bottom: 20px; display: flex; gap: 10px; color: white; align-items: center; }
         .ia-search-box input { background: white; color: black; margin-top: 0; flex: 2; }
 
         #reporte-asesor { display: none; background: #fff; padding: 20px; border-radius: 10px; margin-bottom: 20px; border: 1px solid #dee2e6; border-left: 8px solid var(--info); position: relative; }
-        .badge-pro { position: absolute; top: 15px; right: 20px; background: var(--gold); color: #333; padding: 6px 15px; border-radius: 20px; font-weight: bold; font-size: 11px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
         .progress-container { margin: 10px 0; background: #eee; border-radius: 10px; height: 12px; overflow: hidden; }
         .progress-bar { height: 100%; background: var(--accent); transition: width 0.6s ease; }
         
@@ -38,8 +41,7 @@
         th, td { padding: 12px; border: 1px solid #eee; text-align: left; font-size: 11px; }
         th { background: #f8f9fa; }
         
-        /* ESTILOS DE ALERTA */
-        .risk-row-critical { background: #ffebeb !important; border-left: 5px solid var(--danger); font-weight: bold; } 
+        .risk-row-critical { background: #ffebeb !important; border-left: 5px solid var(--danger); } 
         .risk-row-warning { background: #fff9e6 !important; border-left: 5px solid var(--warning); }
 
         button { cursor: pointer; border: none; font-weight: bold; transition: 0.2s; }
@@ -75,46 +77,55 @@
             <input type="radio" name="star" id="s5" value="5" onclick="evaluar()"><label for="s5">5 ⭐</label>
         </div>
 
-        <label>¿Resolvimos tu gestión / consulta?</label>
+        <label>¿Resolvimos tu consulta?</label>
         <select id="resuelto" onchange="evaluar()">
-            <option value="Si">Sí, totalmente</option><option value="No">No, aún no</option>
+            <option value="Si">Sí</option><option value="No">No</option>
         </select>
 
-        <label>Dejanos un comentario breve:</label>
+        <label>Comentarios adicionales:</label>
         <textarea id="comentario" rows="2" placeholder="Ej: Precios, problemas técnicos, otra empresa..." oninput="evaluar()"></textarea>
 
         <div id="seccion-fuga">
-            <label>📊 Empresa mencionada:</label>
+            <label>📊 Empresa competencia:</label>
             <select id="competencia">
                 <option value="Ninguna">Ninguna</option>
                 <option value="STARLINK">STARLINK</option><option value="SUPERCANAL">SUPERCANAL</option>
                 <option value="OOPS">OOPS</option><option value="AUSTRALNET">AUSTRALNET</option>
                 <option value="PERSONAL/MOVISTAR">PERSONAL / MOVISTAR</option>
             </select>
-            <label>Propuesta recibida:</label>
-            <input type="text" id="oferta_comp" placeholder="Monto o Plan ofrecido">
+            <label>Oferta ofrecida por ellos:</label>
+            <input type="text" id="oferta_comp" placeholder="Monto o Plan">
         </div>
 
         <div id="seccion-contacto">
-            <label>DNI o Celular (Para que un supervisor te contacte):</label>
+            <label>DNI o Celular (Para seguimiento):</label>
             <input type="text" id="clienteId" placeholder="Tu número de contacto">
         </div>
 
-        <button id="btnEnviar" onclick="guardar()" style="background:var(--primary); color:white; margin-top:20px;">Finalizar Encuesta</button>
-        <p onclick="abrirAdmin()" style="text-align:center; font-size:10px; color:#ccc; cursor:pointer; margin-top:20px;">⚙️ ACCESO GERENCIAL</p>
+        <button id="btnEnviar" onclick="guardar()" style="background:var(--primary); color:white; margin-top:20px;">Enviar Encuesta</button>
+        <p onclick="abrirAdmin()" style="text-align:center; font-size:10px; color:#ccc; cursor:pointer; margin-top:20px;">⚙️ ACCESO DASHBOARD</p>
     </div>
 
     <div id="admin-view">
         <div class="live-indicator">● NUBE ACTIVA - TIEMPO REAL</div>
-        <h2 style="text-align:center; color:var(--primary); margin-top:0;">BI Visión: Control de Gestión Integral</h2>
+        <h2 style="text-align:center; color:var(--primary); margin-top:0;">BI Visión: Inteligencia de Mercado</h2>
         
         <div class="ia-search-box">
-            <input type="text" id="search-input" placeholder="IA Search: Filtrar por DNI, Empresa o Comentario..." onkeyup="actualizarDash()">
-            <button onclick="descargarCSV()" style="width:auto; background:var(--accent); margin-top:0;">📊 Exportar Reporte</button>
+            <input type="text" id="search-input" placeholder="IA Search: Filtrar por cualquier dato..." onkeyup="actualizarDash()">
+            <button onclick="descargarCSV()" style="width:auto; background:var(--accent); margin-top:0;">📊 Exportar CSV</button>
+        </div>
+
+        <div class="bi-grid">
+            <div class="bi-card bi-total"><big id="stat-total">0</big><span>Muestras</span></div>
+            <div class="bi-card bi-ventas"><big id="stat-ok">0</big><span>Resolución</span></div>
+            <div class="bi-card bi-fuga"><big id="stat-baja">0</big><span>Riesgos</span></div>
+            <div class="bi-card bi-mercado" id="card-comp">
+                <big id="stat-comp">0</big><span>Competencia</span>
+                <div class="tooltip" id="market-share-list">Cargando datos...</div>
+            </div>
         </div>
 
         <div id="reporte-asesor">
-            <div id="badge-pro" class="badge-pro" style="display:none;">🏆 EXCELENCIA</div>
             <h3 id="rep-nombre" style="text-align:left; color:var(--info); margin-bottom:5px;"></h3>
             <div style="display:grid; grid-template-columns: 1fr 1fr; gap:30px;">
                 <div>
@@ -124,28 +135,21 @@
                     <div class="progress-container"><div id="bar-resol" class="progress-bar" style="background:var(--info);"></div></div>
                 </div>
                 <div>
-                    <span style="font-size: 11px; font-weight: bold; color: #666;">DIAGNÓSTICO AI DE GESTIÓN:</span>
+                    <span style="font-size: 11px; font-weight: bold; color: #666;">COACHING AI:</span>
                     <div id="coaching-box" class="tip-box"></div>
                 </div>
             </div>
         </div>
 
-        <div class="bi-grid">
-            <div class="bi-card bi-total"><big id="stat-total">0</big><span>Muestras</span></div>
-            <div class="bi-card bi-ventas"><big id="stat-ok">0</big><span>Resolución</span></div>
-            <div class="bi-card bi-fuga"><big id="stat-baja">0</big><span>Riesgos</span></div>
-            <div class="bi-card bi-mercado"><big id="stat-comp">0</big><span>Competencia</span></div>
-        </div>
-
         <div style="background:#eee; padding:10px; border-radius:8px; display:flex; gap:10px; margin-bottom:15px;">
             <select id="filterAsesor" onchange="actualizarDash()" style="margin:0; flex:1">
-                <option value="Todos">Global - Todos los Puestos</option>
+                <option value="Todos">Filtro Global</option>
                 <option>PUESTO 1 - MIGUEL</option><option>PUESTO 2 - CAROLINA</option>
                 <option>PUESTO 3 - RODRIGO</option><option>PUESTO 4 - PAULA</option>
                 <option>VENTAS - VICTORIA</option><option>VENTAS - LARA</option>
                 <option>VENTAS - EVELIN</option>
             </select>
-            <button onclick="cerrarAdmin()" style="margin:0; width:auto; background:#666; color:white;">Cerrar Panel</button>
+            <button onclick="cerrarAdmin()" style="margin:0; width:auto; background:#666; color:white;">Volver</button>
         </div>
         
         <table id="main-table">
@@ -177,7 +181,7 @@
             const st = document.querySelector('input[name="star"]:checked')?.value;
             const re = document.getElementById('resuelto').value;
             const t = document.getElementById('comentario').value.toLowerCase();
-            const esRiesgo = ["baja", "cancelar", "irme", "competencia", "starlink", "oops", "caro", "precio", "movistar"].some(p => t.includes(p));
+            const esRiesgo = ["baja", "cancelar", "irme", "competencia", "starlink", "oops", "caro"].some(p => t.includes(p));
             document.getElementById('seccion-fuga').style.display = esRiesgo ? 'block' : 'none';
             document.getElementById('seccion-contacto').style.display = (st <= 3 || re === "No" || esRiesgo) ? 'block' : 'none';
         }
@@ -185,10 +189,7 @@
         async function guardar() {
             const a = document.getElementById('asesor').value;
             const s = document.querySelector('input[name="star"]:checked')?.value;
-            if(!a || !s) return alert("Por favor, selecciona asesor y puntaje.");
-
-            document.getElementById('btnEnviar').innerText = "Procesando...";
-            document.getElementById('btnEnviar').disabled = true;
+            if(!a || !s) return alert("Selecciona asesor y calificación.");
 
             const d = { 
                 fecha: new Date().toLocaleDateString(), 
@@ -202,12 +203,9 @@
 
             try {
                 await fetch(FB_URL, { method: 'POST', body: JSON.stringify(d) });
-                alert("¡Gracias! Tu opinión fue registrada en tiempo real.");
+                alert("Enviado correctamente.");
                 location.reload();
-            } catch (e) {
-                alert("Error de conexión con la nube.");
-                document.getElementById('btnEnviar').disabled = false;
-            }
+            } catch (e) { alert("Error de conexión."); }
         }
 
         function actualizarDash() {
@@ -215,21 +213,25 @@
             const fAsesor = document.getElementById('filterAsesor').value;
             const body = document.getElementById('table-body');
             body.innerHTML = "";
-            let ok = 0, riesgosBaja = 0, comp = 0, sumaSatis = 0;
+            let ok = 0, riesgosBaja = 0, compCount = 0, sumaSatis = 0;
+            let mktShare = {};
 
             const filtrados = logsGlobal.filter(l => (JSON.stringify(l).toLowerCase().includes(q) && (fAsesor === "Todos" || l.asesor.includes(fAsesor))));
             
             filtrados.slice().reverse().forEach(l => {
                 sumaSatis += l.satis;
                 const txt = l.comentario.toLowerCase();
-                const esBaja = ["baja", "cancelar", "irme", "competencia", "oops", "caro"].some(p => txt.includes(p));
-                const esMalaNota = l.satis <= 2;
-
+                const esBaja = ["baja", "cancelar", "irme", "competencia", "oops", "starlink"].some(p => txt.includes(p));
+                
                 if(l.resuelto === "Si") ok++;
                 if(esBaja) riesgosBaja++;
-                if(l.competencia !== "Ninguna") comp++;
+                
+                if(l.competencia !== "Ninguna") {
+                    compCount++;
+                    mktShare[l.competencia] = (mktShare[l.competencia] || 0) + 1;
+                }
 
-                let claseFila = (esBaja) ? "risk-row-critical" : (esMalaNota) ? "risk-row-warning" : "";
+                let claseFila = (esBaja) ? "risk-row-critical" : (l.satis <= 2) ? "risk-row-warning" : "";
 
                 body.innerHTML += `<tr class="${claseFila}">
                     <td>${l.fecha}</td><td>${l.asesor}</td><td>${l.satis}⭐</td>
@@ -238,46 +240,48 @@
                 </tr>`;
             });
 
+            // Actualizar Contadores
             document.getElementById('stat-total').innerText = filtrados.length;
             document.getElementById('stat-ok').innerText = ok;
             document.getElementById('stat-baja').innerText = riesgosBaja;
-            document.getElementById('stat-comp').innerText = comp;
+            document.getElementById('stat-comp').innerText = compCount;
 
+            // --- LÓGICA DE MARKET SHARE (TOOLTIP) ---
+            let shareHtml = "<b>Distribución de Competencia:</b><br>";
+            if(compCount > 0) {
+                for (let emp in mktShare) {
+                    let porc = ((mktShare[emp] / compCount) * 100).toFixed(0);
+                    shareHtml += `• ${emp}: ${porc}%<br>`;
+                }
+            } else { shareHtml = "No hay menciones de competencia."; }
+            document.getElementById('market-share-list').innerHTML = shareHtml;
+
+            // --- LÓGICA COACHING AI ---
             const rep = document.getElementById('reporte-asesor');
             if(fAsesor !== "Todos" && filtrados.length > 0) {
                 const prom = (sumaSatis / filtrados.length).toFixed(1);
                 const efiv = ((ok / filtrados.length) * 100).toFixed(0);
                 rep.style.display = "block";
                 document.getElementById('rep-nombre').innerText = fAsesor;
-                document.getElementById('lab-satis').innerText = `Calidad Media: ${prom}/5⭐`;
+                document.getElementById('lab-satis').innerText = `Satis: ${prom}/5⭐`;
                 document.getElementById('bar-satis').style.width = (prom * 20) + "%";
-                document.getElementById('lab-resol').innerText = `Efectividad: ${efiv}%`;
+                document.getElementById('lab-resol').innerText = `Resol: ${efiv}%`;
                 document.getElementById('bar-resol').style.width = efiv + "%";
 
-                // --- LÓGICA DIAGNÓSTICO AI ---
                 const coach = document.getElementById('coaching-box');
-                const badge = document.getElementById('badge-pro');
                 const feedbackText = filtrados.map(l => l.comentario.toLowerCase()).join(" ");
                 
                 if(prom >= 4.5 && efiv >= 85) {
-                    badge.style.display = "block";
-                    coach.innerHTML = "<b>Análisis AI:</b> Desempeño sobresaliente. Referente en calidad y resolución técnica.";
+                    coach.innerHTML = "<b>Análisis AI:</b> Nivel experto. Sin fugas detectadas.";
+                } else if(feedbackText.includes("oops") || feedbackText.includes("starlink")) {
+                    coach.innerHTML = "<b>Alerta de Mercado:</b> El asesor está perdiendo terreno frente a la competencia local. Reforzar comparativa de beneficios.";
                 } else {
-                    badge.style.display = "none";
-                    if(feedbackText.includes("baja") || feedbackText.includes("caro") || feedbackText.includes("oops")) {
-                        coach.innerHTML = "<b>Alerta Crítica:</b> Se detectan múltiples consultas por competencia o costos. Reforzar técnicas de retención.";
-                    } else if(efiv < 50) {
-                        coach.innerHTML = "<b>Foco en Resolución:</b> Gran parte de las consultas quedan abiertas. Revisar procesos de soporte.";
-                    } else if(prom < 3.5) {
-                        coach.innerHTML = "<b>Foco en Soft Skills:</b> El cliente percibe una atención mejorable. Trabajar en empatía y escucha activa.";
-                    } else {
-                        coach.innerHTML = "<b>Sugerencia:</b> Mantener el estándar de atención y asegurar el cierre positivo de cada ticket.";
-                    }
+                    coach.innerHTML = "<b>Sugerencia:</b> Revisar tiempos de respuesta. El cliente valora la agilidad.";
                 }
             } else { rep.style.display = "none"; }
         }
 
-        function abrirAdmin() { if(prompt("Clave Gerencial:") === "Vision2026") { sessionStorage.setItem('isAdminActive', 'true'); mostrarPanelAdmin(); } }
+        function abrirAdmin() { if(prompt("Clave:") === "Vision2026") { sessionStorage.setItem('isAdminActive', 'true'); mostrarPanelAdmin(); } }
         function mostrarPanelAdmin() { document.getElementById('survey-view').style.display='none'; document.getElementById('admin-view').style.display='block'; actualizarDash(); }
         function cerrarAdmin() { sessionStorage.setItem('isAdminActive', 'false'); document.getElementById('admin-view').style.display='none'; document.getElementById('survey-view').style.display='block'; }
         
@@ -285,8 +289,10 @@
             let csv = "\uFEFFFecha;Asesor;Pts;Resolvio;Contacto;Empresa;Oferta;Comentario\n";
             logsGlobal.forEach(l => { csv += `${l.fecha};${l.asesor};${l.satis};${l.resuelto};${l.contacto};${l.competencia};${l.oferta};${l.comentario}\n`; });
             const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-            const a = document.createElement('a'); a.href = window.URL.createObjectURL(blob); a.download = 'BI_Vision_Ushuaia.csv'; a.click();
+            const a = document.createElement('a'); a.href = window.URL.createObjectURL(blob); a.download = 'Vision_Ushuaia_Reporte.csv'; a.click();
         }
     </script>
+</body>
+</html>
 </body>
 </html>
