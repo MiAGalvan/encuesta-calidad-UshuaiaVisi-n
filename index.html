@@ -3,172 +3,229 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BI Gestión de Calidad - Ushuaia Visión</title>
+    <title>Ushuaia Visión - Business Intelligence & Calidad</title>
     <style>
-        :root { --primary: #0056b3; --accent: #28a745; --danger: #dc3545; --warning: #f59e0b; --bg: #f0f2f5; }
-        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); margin: 0; padding: 10px; }
-        .card { background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); margin: auto; max-width: 480px; border-top: 6px solid var(--primary); }
-        label { display: block; margin-top: 15px; font-weight: bold; font-size: 13px; color: #444; }
-        input, select, textarea, button { width: 100%; padding: 12px; margin-top: 8px; border: 1px solid #ddd; border-radius: 8px; font-size: 15px; box-sizing: border-box; }
-        .btn-send { background: var(--accent); color: white; border: none; font-weight: bold; cursor: pointer; height: 55px; font-size: 16px; margin-top: 20px; }
-        .nav-link { text-align: center; margin-top: 20px; font-size: 10px; color: #ccc; cursor: pointer; }
+        :root { --primary: #0056b3; --accent: #28a745; --danger: #dc3545; --warning: #f59e0b; --bg: #f4f7f9; }
+        body { font-family: 'Segoe UI', Tahoma, sans-serif; background: var(--bg); margin: 0; padding: 10px; color: #333; }
+        .card { background: white; padding: 25px; border-radius: 15px; box-shadow: 0 8px 30px rgba(0,0,0,0.05); margin: auto; max-width: 500px; border-top: 6px solid var(--primary); }
+        .admin-card { max-width: 1200px; border-top-color: #333; }
+        label { display: block; margin-top: 15px; font-weight: bold; font-size: 13px; }
+        input, select, textarea, button { width: 100%; padding: 12px; margin-top: 8px; border: 1px solid #ddd; border-radius: 10px; font-size: 15px; box-sizing: border-box; }
+        .btn-send { background: var(--accent); color: white; border: none; font-weight: bold; cursor: pointer; height: 55px; margin-top: 20px; font-size: 16px; }
         
-        /* Dashboard */
-        #view-admin { display: none; max-width: 1100px; }
-        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; margin-bottom: 20px; }
-        .stat-card { background: var(--primary); color: white; padding: 15px; border-radius: 10px; text-align: center; }
-        table { width: 100%; border-collapse: collapse; font-size: 11px; background: white; margin-top: 15px; }
-        th, td { padding: 10px; border: 1px solid #eee; text-align: left; }
-        .row-risk { background: #fff1f1; border-left: 4px solid var(--danger); }
-        
-        #view-survey, #view-emitter { display: block; }
+        /* Dashboard Layout */
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px; margin-bottom: 25px; }
+        .stat-card { background: white; padding: 20px; border-radius: 12px; text-align: center; border: 1px solid #eee; transition: 0.3s; }
+        .stat-card:hover { border-color: var(--primary); }
+        .stat-card h2 { margin: 0; color: var(--primary); font-size: 32px; }
+        .stat-card span { font-size: 11px; color: #777; font-weight: bold; text-transform: uppercase; }
+
+        .bi-columns { display: grid; grid-template-columns: 2fr 1fr; gap: 20px; }
+        @media (max-width: 900px) { .bi-columns { grid-template-columns: 1fr; } }
+
+        /* Competition Monitor */
+        .monitor-box { background: #1e293b; color: #f8fafc; padding: 15px; border-radius: 12px; font-size: 13px; }
+        .comp-item { border-bottom: 1px solid #334155; padding: 10px 0; display: flex; justify-content: space-between; align-items: center; }
+        .btn-check { background: #3b82f6; color: white; border: none; padding: 4px 8px; border-radius: 4px; font-size: 10px; width: auto; margin: 0; cursor: pointer; }
+
+        table { width: 100%; border-collapse: collapse; font-size: 12px; background: white; }
+        th, td { padding: 12px; border: 1px solid #eee; text-align: left; }
+        .row-risk { background: #fff5f5 !important; border-left: 5px solid var(--danger); }
+        .nav-link { text-align: center; margin-top: 30px; font-size: 11px; color: #bbb; cursor: pointer; }
     </style>
 </head>
 <body>
 
-<div id="app-container" style="max-width: 1200px; margin: auto;">
+<div id="app">
 
     <div id="view-emitter" class="card">
-        <h3 style="text-align:center; margin:0">Registro de Atención</h3>
-        <p style="text-align:center; font-size:12px; color:#666">Habilitá al cliente y enviá la encuesta por WhatsApp.</p>
+        <h2 style="text-align:center; color:var(--primary); margin-bottom:5px;">Atención al Cliente</h2>
+        <p style="text-align:center; font-size:12px; color:#888; margin-top:0;">Habilitación y Envío de Encuesta</p>
         
         <label>Nro. de Cliente (CRM):</label>
         <input type="text" id="em-nro" placeholder="Ej: 18701">
         
         <label>DNI del Cliente:</label>
-        <input type="text" id="em-dni" placeholder="Para validar acceso">
+        <input type="text" id="em-dni" placeholder="DNI para validación">
 
-        <label>WhatsApp del Cliente (Solo números):</label>
-        <input type="text" id="em-phone" placeholder="Ej: 2901448780">
+        <label>WhatsApp (Sin 0 ni 15):</label>
+        <input type="text" id="em-phone" placeholder="Ej: 2901305986">
 
         <label>Asesor:</label>
         <select id="em-asesor">
-            <option>MIGUEL GALVAN</option><option>RODRIGO</option><option>CAROLINA</option><option>PAULA</option>
+            <option>MIGUEL GALVAN</option>
+            <option>RODRIGO</option>
+            <option>CAROLINA</option>
+            <option>PAULA</option>
         </select>
 
-        <button onclick="procesarYEnviar()" class="btn-send">🚀 HABILITAR Y ENVIAR</button>
-        <p class="nav-link" onclick="accesoAdmin()">⚙️ PANEL INTERNO</p>
+        <button onclick="procesarYEnviar()" class="btn-send">🚀 GENERAR Y ENVIAR</button>
+        <p class="nav-link" onclick="accesoAdmin()">⚙️ PANEL BI & DASHBOARD</p>
     </div>
 
     <div id="view-survey" class="card" style="display:none">
         <div id="survey-auth">
-            <h3 style="text-align:center">Validación</h3>
-            <label>Ingresá tu DNI para continuar:</label>
-            <input type="text" id="auth-dni" placeholder="Tu número de DNI">
-            <button onclick="validarDNI()" class="btn-send" style="background:var(--primary)">ENTRAR</button>
+            <h2 style="text-align:center">Portal de Calidad</h2>
+            <p style="text-align:center; font-size:13px;">Por favor, validá tu identidad.</p>
+            <input type="text" id="auth-dni" placeholder="Ingresá tu DNI">
+            <button onclick="validarDNI()" class="btn-send" style="background:var(--primary)">ACCEDER</button>
         </div>
+
         <div id="survey-main" style="display:none">
-            <h3 style="color:var(--primary)">Tu opinión importa</h3>
-            <label>¿Cómo calificarías nuestra atención? (1-5)</label>
-            <select id="q-atencion"><option value="5">Excelente ⭐⭐⭐⭐⭐</option><option value="4">Muy Buena ⭐⭐⭐⭐</option><option value="3">Buena ⭐⭐⭐</option><option value="2">Regular ⭐⭐</option><option value="1">Mala ⭐</option></select>
+            <h3 style="color:var(--primary); margin-bottom:15px;">Queremos mejorar por vos</h3>
             
-            <label>¿Nos recomendarías? (0 al 10)</label>
-            <input type="number" id="q-nps" min="0" max="10" value="10">
+            <label>¿Cómo fue la atención hoy? (1 al 5)</label>
+            <select id="q-atencion">
+                <option value="5">Excelente ⭐⭐⭐⭐⭐</option>
+                <option value="4">Muy Buena ⭐⭐⭐⭐</option>
+                <option value="3">Buena ⭐⭐⭐</option>
+                <option value="2">Regular ⭐⭐</option>
+                <option value="1">Mala ⭐</option>
+            </select>
+            
+            <label>¿Qué tan probable es que nos recomiendes? (0-10)</label>
+            <input type="number" id="q-nps" min="0" max="10" value="10" style="text-align:center; font-weight:bold; color:var(--primary);">
 
-            <label>Comentarios adicionales:</label>
-            <textarea id="q-comentario" rows="3" oninput="detectarBaja()"></textarea>
+            <label>Rango de tu última factura:</label>
+            <select id="q-precio">
+                <option value="Plan Básico (<15k)">Plan Básico (Menos de $15.000)</option>
+                <option value="Plan Medio (15k-25k)">Plan Medio ($15k - $25k)</option>
+                <option value="Plan Premium (>25k)">Plan Premium (Más de $25k)</option>
+            </select>
 
-            <div id="div-baja" style="display:none; background:#fff3cd; padding:10px; border-radius:8px; margin-top:10px">
-                <label>Detectamos una posible baja. ¿A qué empresa pensás cambiarte?</label>
-                <select id="q-comp"><option>Ninguna</option><option>STARLINK</option><option>TV FUEGO</option><option>OOPS</option><option>MOVISTAR</option></select>
+            <label>Comentarios:</label>
+            <textarea id="q-comentario" rows="3" oninput="analizarBaja()" placeholder="Contanos más..."></textarea>
+
+            <div id="div-baja" style="display:none; background:#fff8e1; padding:15px; border-radius:10px; margin-top:15px; border:1px solid var(--warning);">
+                <p style="margin:0 0 10px 0; font-size:12px; color:#856404; font-weight:bold;">Sugerencia de la empresa:</p>
+                <label style="margin:0;">¿Considerás cambiarte a otra prestadora?</label>
+                <select id="q-comp">
+                    <option value="Ninguna">No por ahora</option>
+                    <option>STARLINK</option><option>MOVISTAR</option><option>TV FUEGO</option><option>OPPS</option><option>OTRO</option>
+                </select>
             </div>
 
-            <button onclick="guardarEncuesta()" class="btn-send">ENVIAR ENCUESTA</button>
+            <button onclick="guardarEncuesta()" class="btn-send">FINALIZAR</button>
         </div>
     </div>
 
-    <div id="view-admin" class="card">
-        <h2 style="text-align:center">BI Visión - Dashboard</h2>
+    <div id="view-admin" class="card admin-card" style="display:none">
+        <h2 style="text-align:center; margin-top:0;">BI Visión - Dashboard Gerencial</h2>
+        
         <div class="stats-grid">
-            <div class="stat-card"> <h2 id="st-total">0</h2> <span>MUESTRAS</span> </div>
-            <div class="stat-card" style="background:var(--accent)"> <h2 id="st-nps">0</h2> <span>NPS</span> </div>
-            <div class="stat-card" style="background:var(--danger)"> <h2 id="st-risk">0</h2> <span>RIESGOS</span> </div>
+            <div class="stat-card"> <h2 id="st-total">0</h2> <span>Encuestas</span> </div>
+            <div class="stat-card"> <h2 id="st-nps" style="color:var(--accent)">0</h2> <span>NPS Promedio</span> </div>
+            <div class="stat-card"> <h2 id="st-risk" style="color:var(--danger)">0</h2> <span>Clientes en Riesgo</span> </div>
+            <div class="stat-card"> <h2 id="st-stars" style="color:var(--warning)">0</h2> <span>Rating Atención</span> </div>
         </div>
-        <input type="text" id="search" placeholder="Filtrar por asesor..." onkeyup="dibujarTabla()">
-        <div style="overflow-x:auto">
-            <table>
-                <thead><tr><th>Fecha</th><th>Cliente</th><th>Asesor</th><th>Calif.</th><th>NPS</th><th>Comp.</th><th>Comentario</th></tr></thead>
-                <tbody id="tabla-body"></tbody>
-            </table>
-        </div>
-        <button onclick="location.reload()" style="margin-top:10px; background:#666; color:white">Volver</button>
-    </div>
 
+        <div class="bi-columns">
+            <div>
+                <div style="display:flex; gap:10px; margin-bottom:10px;">
+                    <input type="text" id="search" placeholder="Buscar asesor o cliente..." onkeyup="dibujarTabla()">
+                    <select id="f-stars" onchange="dibujarTabla()" style="width:150px;">
+                        <option value="all">Todas ⭐</option>
+                        <option value="5">5 ⭐</option><option value="1">1-2 ⭐ (Críticos)</option>
+                    </select>
+                </div>
+                <div style="overflow-x:auto; max-height:400px;">
+                    <table>
+                        <thead style="position:sticky; top:0; background:#eee;">
+                            <tr><th>Fecha</th><th>Asesor</th><th>Calif.</th><th>NPS</th><th>Comp.</th><th>Comentario</th></tr>
+                        </thead>
+                        <tbody id="tabla-body"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="monitor-box">
+                <h4 style="margin:0 0 15px 0; color:var(--warning);">🌐 Monitor de Competencia</h4>
+                <div class="comp-item">
+                    <span><b>STARLINK</b> (Web)</span>
+                    <button class="btn-check" onclick="window.open('https://www.starlink.com/map?region=AR','_blank')">VER MAPA</button>
+                </div>
+                <div class="comp-item">
+                    <span><b>TV FUEGO</b> (Promos)</span>
+                    <button class="btn-check" onclick="window.open('https://www.facebook.com/tvfuego','_blank')">FACEBOOK</button>
+                </div>
+                <div class="comp-item">
+                    <span><b>MOVISTAR</b> (TDF)</span>
+                    <button class="btn-check" onclick="window.open('https://www.movistar.com.ar/hogar/internet','_blank')">PRECIOS</button>
+                </div>
+                <div style="margin-top:15px; font-size:11px; color:#94a3b8; line-height:1.4;">
+                    <p><b>Tip Pro:</b> Si el NPS es bajo y mencionan "Starlink", ofrecele el descuento de retención nivel 1 inmediatamente.</p>
+                </div>
+                <button onclick="location.reload()" style="background:#475569; color:white; font-size:11px; margin-top:20px;">CERRAR SESIÓN</button>
+            </div>
+        </div>
+    </div>
 </div>
 
 <script>
     const FIREBASE = "https://vision-bi-6bd64-default-rtdb.firebaseio.com/";
-    const URL_WEB = window.location.origin + window.location.pathname; // Limpia parámetros previos
+    const URL_BASE = window.location.origin + window.location.pathname;
     let rawData = [];
 
-    // --- LÓGICA EMISOR (CORREGIDA Y UNIFICADA) ---
+    // --- EMISOR ---
     async function procesarYEnviar() {
         const nro = document.getElementById('em-nro').value;
         const dni = document.getElementById('em-dni').value;
         const tel = document.getElementById('em-phone').value;
         const ase = document.getElementById('em-asesor').value;
 
-        if(!nro || !dni || !tel) return alert("Completá todos los campos.");
+        if(!nro || !dni || !tel) return alert("❌ Por favor completá todos los datos.");
 
-        // 1. Guardar Token en Firebase
-        const token = { nro: nro, dni: dni, asesor: ase, usado: false, fecha: new Date().toISOString() };
+        const token = { nro, dni, asesor: ase, usado: false, fecha: new Date().toISOString() };
         await fetch(`${FIREBASE}tokens/${dni}.json`, { method: 'PUT', body: JSON.stringify(token) });
 
-        // 2. Generar el link con MODO CLIENTE
-        const linkEncuesta = `${URL_WEB}?modo=cliente`;
-
-        // 3. Generar mensaje de WhatsApp
-        const msj = `Hola! Gracias por elegir Ushuaia Visión. Valoramos mucho tu opinión sobre nuestra atención hoy. Podés completar la encuesta aquí: ${linkEncuesta} (Validá con tu DNI: ${dni})`;
-        const linkWs = `https://wa.me/54${tel}?text=${encodeURIComponent(msj)}`;
-
-        // 4. Abrir WhatsApp y resetear la vista
-        window.open(linkWs, '_blank');
-        alert("✅ Cliente habilitado y chat de WhatsApp abierto.");
+        const linkEncuesta = `${URL_BASE}?modo=cliente`;
+        const msj = `Hola! Gracias por elegir Ushuaia Visión. Tu opinión nos importa mucho. Por favor, completá esta breve encuesta: ${linkEncuesta} (Ingresá con tu DNI: ${dni})`;
+        
+        window.open(`https://wa.me/54${tel}?text=${encodeURIComponent(msj)}`, '_blank');
+        alert("✅ Token generado. WhatsApp abierto.");
         location.reload(); 
     }
 
-    // --- LÓGICA ENCUESTA ---
+    // --- CLIENTE ---
     async function validarDNI() {
         const dni = document.getElementById('auth-dni').value;
         const res = await fetch(`${FIREBASE}tokens/${dni}.json`);
         const data = await res.json();
-
         if(data && !data.usado) {
             window.activeToken = data;
             document.getElementById('survey-auth').style.display = 'none';
             document.getElementById('survey-main').style.display = 'block';
         } else {
-            alert("DNI no habilitado o encuesta ya enviada.");
+            alert("Acceso inválido o encuesta ya completada.");
         }
     }
 
-    function detectarBaja() {
-        const txt = document.getElementById('q-comentario').value.toLowerCase();
-        const palabrasAlerta = ["baja", "cancelar", "irme", "fuego", "starlink", "caro", "precio"];
-        document.getElementById('div-baja').style.display = palabrasAlerta.some(word => txt.includes(word)) ? 'block' : 'none';
+    function analizarBaja() {
+        const t = document.getElementById('q-comentario').value.toLowerCase();
+        const keywords = ["baja", "irme", "caro", "competencia", "starlink", "movistar", "fuego", "precio", "oops"];
+        document.getElementById('div-baja').style.display = keywords.some(k => t.includes(k)) ? 'block' : 'none';
     }
 
     async function guardarEncuesta() {
-        const enc = {
+        const payload = {
             ...window.activeToken,
-            calif: document.getElementById('q-atencion').value,
+            atencion: document.getElementById('q-atencion').value,
             nps: document.getElementById('q-nps').value,
+            precio: document.getElementById('q-precio').value,
             comentario: document.getElementById('q-comentario').value,
             competencia: document.getElementById('q-comp').value,
-            finalizado: new Date().toLocaleString()
+            fecha_fin: new Date().toLocaleString()
         };
-
-        await fetch(`${FIREBASE}encuestas.json`, { method: 'POST', body: JSON.stringify(enc) });
+        await fetch(`${FIREBASE}encuestas.json`, { method: 'POST', body: JSON.stringify(payload) });
         await fetch(`${FIREBASE}tokens/${window.activeToken.dni}.json`, { method: 'PATCH', body: JSON.stringify({usado:true}) });
-        alert("¡Muchas gracias por tu tiempo!");
-        location.reload();
+        alert("¡Muchas gracias!");
+        location.href = URL_BASE;
     }
 
-    // --- LÓGICA ADMIN ---
+    // --- ADMIN ---
     async function accesoAdmin() {
-        if(prompt("Clave:") === "Vision2026") {
+        if(prompt("Clave BI:") === "Vision2026") {
             document.getElementById('view-emitter').style.display = 'none';
-            document.getElementById('view-survey').style.display = 'none';
             document.getElementById('view-admin').style.display = 'block';
             const res = await fetch(`${FIREBASE}encuestas.json`);
             const json = await res.json();
@@ -179,50 +236,48 @@
 
     function dibujarTabla() {
         const body = document.getElementById('tabla-body');
-        const filter = document.getElementById('search').value.toLowerCase();
+        const search = document.getElementById('search').value.toLowerCase();
+        const fStars = document.getElementById('f-stars').value;
         body.innerHTML = "";
-        let npsTotal = 0, riesgos = 0;
+        
+        let npsAcc = 0, starsAcc = 0, riesgos = 0, total = 0;
 
         rawData.reverse().forEach(e => {
-            if(e.asesor.toLowerCase().includes(filter)) {
-                npsTotal += parseInt(e.nps);
-                const isRisk = (e.nps <= 6 || (e.competencia && e.competencia !== "Ninguna"));
-                if(isRisk) riesgos++;
-                
-                body.innerHTML += `<tr class="${isRisk ? 'row-risk' : ''}">
-                    <td>${e.finalizado ? e.finalizado.split(',')[0] : 'S/D'}</td>
-                    <td>${e.nro}</td>
+            const matchSearch = e.asesor.toLowerCase().includes(search) || e.nro.includes(search);
+            const matchStars = fStars === "all" || (fStars === "1" ? parseInt(e.atencion) <= 2 : e.atencion === fStars);
+
+            if(matchSearch && matchStars) {
+                total++;
+                npsAcc += parseInt(e.nps);
+                starsAcc += parseInt(e.atencion);
+                const esRiesgo = (parseInt(e.nps) <= 6 || e.competencia !== "Ninguna");
+                if(esRiesgo) riesgos++;
+
+                body.innerHTML += `<tr class="${esRiesgo ? 'row-risk' : ''}">
+                    <td>${e.fecha_fin.split(' ')[0]}</td>
                     <td>${e.asesor}</td>
-                    <td>${e.calif}⭐</td>
+                    <td>${e.atencion}⭐</td>
                     <td>${e.nps}</td>
-                    <td>${e.competencia || 'N/A'}</td>
-                    <td>${e.comentario}</td>
+                    <td>${e.competencia}</td>
+                    <td title="${e.comentario}">${e.comentario.substring(0,20)}...</td>
                 </tr>`;
             }
         });
 
-        document.getElementById('st-total').innerText = rawData.length;
-        document.getElementById('st-nps').innerText = rawData.length ? (npsTotal/rawData.length).toFixed(1) : 0;
+        document.getElementById('st-total').innerText = total;
+        document.getElementById('st-nps').innerText = total ? (npsAcc/total).toFixed(1) : 0;
+        document.getElementById('st-stars').innerText = total ? (starsAcc/total).toFixed(1) : 0;
         document.getElementById('st-risk').innerText = riesgos;
     }
 
-    // --- DETECTOR DE MODO AL CARGAR ---
-    window.onload = function() {
-        const urlParams = new URLSearchParams(window.location.search);
-        const modo = urlParams.get('modo');
-
-        if (modo === 'cliente') {
+    // CONTROL DE MODO AL INICIAR
+    window.onload = () => {
+        const p = new URLSearchParams(window.location.search);
+        if(p.get('modo') === 'cliente') {
             document.getElementById('view-emitter').style.display = 'none';
-            document.getElementById('view-admin').style.display = 'none';
             document.getElementById('view-survey').style.display = 'block';
-        } else {
-            // Por defecto mostramos el emisor si no hay modo cliente
-            document.getElementById('view-emitter').style.display = 'block';
-            document.getElementById('view-survey').style.display = 'none';
-            document.getElementById('view-admin').style.display = 'none';
         }
     };
-
 </script>
 </body>
 </html>
