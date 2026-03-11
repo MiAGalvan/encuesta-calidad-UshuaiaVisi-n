@@ -98,43 +98,33 @@
 
 <script>
     const FIREBASE = "https://vision-bi-6bd64-default-rtdb.firebaseio.com/";
-    const URL_WEB = window.location.href; // Toma la URL actual de GitHub
+    const URL_WEB = window.location.origin + window.location.pathname; // Limpia parámetros previos
     let rawData = [];
 
-    // --- LÓGICA EMISOR ---
-   async function procesarYEnviar() {
-    const nro = document.getElementById('em-nro').value;
-    const dni = document.getElementById('em-dni').value;
-    const tel = document.getElementById('em-phone').value;
-    const ase = document.getElementById('em-asesor').value;
+    // --- LÓGICA EMISOR (CORREGIDA Y UNIFICADA) ---
+    async function procesarYEnviar() {
+        const nro = document.getElementById('em-nro').value;
+        const dni = document.getElementById('em-dni').value;
+        const tel = document.getElementById('em-phone').value;
+        const ase = document.getElementById('em-asesor').value;
 
-    if(!nro || !dni || !tel) return alert("Completá todos los campos.");
-
-    const token = { nro: nro, dni: dni, asesor: ase, usado: false, fecha: new Date().toISOString() };
-    await fetch(`${FIREBASE}tokens/${dni}.json`, { method: 'PUT', body: JSON.stringify(token) });
-
-    // AGREGAMOS EL PARÁMETRO MODO CLIENTE AL LINK
-    const linkEncuesta = URL_WEB.includes('?') ? `${URL_WEB}&modo=cliente` : `${URL_WEB}?modo=cliente`;
-
-    const msj = `Hola! Gracias por elegir Ushuaia Visión. Valoramos mucho tu opinión. Completá la encuesta aquí: ${linkEncuesta} (Validá con tu DNI: ${dni})`;
-    const linkWs = `https://wa.me/54${tel}?text=${encodeURIComponent(msj)}`;
-
-    window.open(linkWs, '_blank');
-    alert("✅ Cliente habilitado y link enviado.");
-}
+        if(!nro || !dni || !tel) return alert("Completá todos los campos.");
 
         // 1. Guardar Token en Firebase
         const token = { nro: nro, dni: dni, asesor: ase, usado: false, fecha: new Date().toISOString() };
         await fetch(`${FIREBASE}tokens/${dni}.json`, { method: 'PUT', body: JSON.stringify(token) });
 
-        // 2. Generar mensaje de WhatsApp
-        const msj = `Hola! Gracias por elegir Ushuaia Visión. Valoramos mucho tu opinión sobre nuestra atención hoy. Podés completar la encuesta aquí: ${URL_WEB} (Validá con tu DNI: ${dni})`;
+        // 2. Generar el link con MODO CLIENTE
+        const linkEncuesta = `${URL_WEB}?modo=cliente`;
+
+        // 3. Generar mensaje de WhatsApp
+        const msj = `Hola! Gracias por elegir Ushuaia Visión. Valoramos mucho tu opinión sobre nuestra atención hoy. Podés completar la encuesta aquí: ${linkEncuesta} (Validá con tu DNI: ${dni})`;
         const linkWs = `https://wa.me/54${tel}?text=${encodeURIComponent(msj)}`;
 
-        // 3. Abrir WhatsApp y resetear
+        // 4. Abrir WhatsApp y resetear la vista
         window.open(linkWs, '_blank');
         alert("✅ Cliente habilitado y chat de WhatsApp abierto.");
-        location.reload();
+        location.reload(); 
     }
 
     // --- LÓGICA ENCUESTA ---
@@ -154,8 +144,8 @@
 
     function detectarBaja() {
         const txt = document.getElementById('q-comentario').value.toLowerCase();
-        const alert = ["baja", "cancelar", "irme", "fuego", "starlink", "caro", "precio"];
-        document.getElementById('div-baja').style.display = alert.some(word => txt.includes(word)) ? 'block' : 'none';
+        const palabrasAlerta = ["baja", "cancelar", "irme", "fuego", "starlink", "caro", "precio"];
+        document.getElementById('div-baja').style.display = palabrasAlerta.some(word => txt.includes(word)) ? 'block' : 'none';
     }
 
     async function guardarEncuesta() {
@@ -178,6 +168,7 @@
     async function accesoAdmin() {
         if(prompt("Clave:") === "Vision2026") {
             document.getElementById('view-emitter').style.display = 'none';
+            document.getElementById('view-survey').style.display = 'none';
             document.getElementById('view-admin').style.display = 'block';
             const res = await fetch(`${FIREBASE}encuestas.json`);
             const json = await res.json();
@@ -195,12 +186,17 @@
         rawData.reverse().forEach(e => {
             if(e.asesor.toLowerCase().includes(filter)) {
                 npsTotal += parseInt(e.nps);
-                const isRisk = (e.nps <= 6 || e.competencia !== "Ninguna");
+                const isRisk = (e.nps <= 6 || (e.competencia && e.competencia !== "Ninguna"));
                 if(isRisk) riesgos++;
                 
                 body.innerHTML += `<tr class="${isRisk ? 'row-risk' : ''}">
-                    <td>${e.finalizado.split(',')[0]}</td><td>${e.nro}</td><td>${e.asesor}</td>
-                    <td>${e.calif}⭐</td><td>${e.nps}</td><td>${e.competencia}</td><td>${e.comentario}</td>
+                    <td>${e.finalizado ? e.finalizado.split(',')[0] : 'S/D'}</td>
+                    <td>${e.nro}</td>
+                    <td>${e.asesor}</td>
+                    <td>${e.calif}⭐</td>
+                    <td>${e.nps}</td>
+                    <td>${e.competencia || 'N/A'}</td>
+                    <td>${e.comentario}</td>
                 </tr>`;
             }
         });
@@ -209,21 +205,24 @@
         document.getElementById('st-nps').innerText = rawData.length ? (npsTotal/rawData.length).toFixed(1) : 0;
         document.getElementById('st-risk').innerText = riesgos;
     }
-    // DETECTOR DE MODO AL CARGAR LA PÁGINA
-window.onload = function() {
-    const urlParams = new URLSearchParams(window.location.search);
-    const modo = urlParams.get('modo');
 
-    if (modo === 'cliente') {
-        // Ocultamos todo y mostramos solo la encuesta
-        document.getElementById('view-emitter').style.display = 'none';
-        document.getElementById('view-admin').style.display = 'none';
-        document.getElementById('view-survey').style.display = 'block';
-    } else {
-        // Modo Asesor por defecto
-        showView('view-emitter');
-    }
-};
+    // --- DETECTOR DE MODO AL CARGAR ---
+    window.onload = function() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const modo = urlParams.get('modo');
+
+        if (modo === 'cliente') {
+            document.getElementById('view-emitter').style.display = 'none';
+            document.getElementById('view-admin').style.display = 'none';
+            document.getElementById('view-survey').style.display = 'block';
+        } else {
+            // Por defecto mostramos el emisor si no hay modo cliente
+            document.getElementById('view-emitter').style.display = 'block';
+            document.getElementById('view-survey').style.display = 'none';
+            document.getElementById('view-admin').style.display = 'none';
+        }
+    };
+
 </script>
 </body>
 </html>
