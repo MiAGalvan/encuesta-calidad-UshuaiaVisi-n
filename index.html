@@ -102,13 +102,26 @@
     let rawData = [];
 
     // --- LÓGICA EMISOR ---
-    async function procesarYEnviar() {
-        const nro = document.getElementById('em-nro').value;
-        const dni = document.getElementById('em-dni').value;
-        const tel = document.getElementById('em-phone').value;
-        const ase = document.getElementById('em-asesor').value;
+   async function procesarYEnviar() {
+    const nro = document.getElementById('em-nro').value;
+    const dni = document.getElementById('em-dni').value;
+    const tel = document.getElementById('em-phone').value;
+    const ase = document.getElementById('em-asesor').value;
 
-        if(!nro || !dni || !tel) return alert("Completá todos los campos.");
+    if(!nro || !dni || !tel) return alert("Completá todos los campos.");
+
+    const token = { nro: nro, dni: dni, asesor: ase, usado: false, fecha: new Date().toISOString() };
+    await fetch(`${FIREBASE}tokens/${dni}.json`, { method: 'PUT', body: JSON.stringify(token) });
+
+    // AGREGAMOS EL PARÁMETRO MODO CLIENTE AL LINK
+    const linkEncuesta = URL_WEB.includes('?') ? `${URL_WEB}&modo=cliente` : `${URL_WEB}?modo=cliente`;
+
+    const msj = `Hola! Gracias por elegir Ushuaia Visión. Valoramos mucho tu opinión. Completá la encuesta aquí: ${linkEncuesta} (Validá con tu DNI: ${dni})`;
+    const linkWs = `https://wa.me/54${tel}?text=${encodeURIComponent(msj)}`;
+
+    window.open(linkWs, '_blank');
+    alert("✅ Cliente habilitado y link enviado.");
+}
 
         // 1. Guardar Token en Firebase
         const token = { nro: nro, dni: dni, asesor: ase, usado: false, fecha: new Date().toISOString() };
@@ -196,6 +209,21 @@
         document.getElementById('st-nps').innerText = rawData.length ? (npsTotal/rawData.length).toFixed(1) : 0;
         document.getElementById('st-risk').innerText = riesgos;
     }
+    // DETECTOR DE MODO AL CARGAR LA PÁGINA
+window.onload = function() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const modo = urlParams.get('modo');
+
+    if (modo === 'cliente') {
+        // Ocultamos todo y mostramos solo la encuesta
+        document.getElementById('view-emitter').style.display = 'none';
+        document.getElementById('view-admin').style.display = 'none';
+        document.getElementById('view-survey').style.display = 'block';
+    } else {
+        // Modo Asesor por defecto
+        showView('view-emitter');
+    }
+};
 </script>
 </body>
 </html>
