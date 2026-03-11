@@ -1,299 +1,201 @@
-código encuesta 
 <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CALIDAD ATENCIÓN - USHUAIA VISIÓN</title>
+    <title>BI Gestión de Calidad - Ushuaia Visión</title>
     <style>
-        :root { --primary: #0056b3; --accent: #28a745; --danger: #dc3545; --warning: #f59e0b; --info: #17a2b8; --purple: #6f42c1; --gold: #ffd700; --bg: #f4f7f6; }
-        body { font-family: 'Segoe UI', Tahoma, sans-serif; background: var(--bg); margin: 0; padding: 20px; display: flex; flex-direction: column; align-items: center; }
+        :root { --primary: #0056b3; --accent: #28a745; --danger: #dc3545; --warning: #f59e0b; --bg: #f0f2f5; }
+        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); margin: 0; padding: 10px; }
+        .card { background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); margin: auto; max-width: 480px; border-top: 6px solid var(--primary); }
+        label { display: block; margin-top: 15px; font-weight: bold; font-size: 13px; color: #444; }
+        input, select, textarea, button { width: 100%; padding: 12px; margin-top: 8px; border: 1px solid #ddd; border-radius: 8px; font-size: 15px; box-sizing: border-box; }
+        .btn-send { background: var(--accent); color: white; border: none; font-weight: bold; cursor: pointer; height: 55px; font-size: 16px; margin-top: 20px; }
+        .nav-link { text-align: center; margin-top: 20px; font-size: 10px; color: #ccc; cursor: pointer; }
         
-        .card { background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); width: 100%; max-width: 450px; }
-        h3 { color: var(--primary); text-align: center; margin: 0 0 10px 0; }
-        label { display: block; margin-top: 15px; font-weight: bold; color: #444; font-size: 13px; }
-        input, select, textarea, button { width: 100%; padding: 12px; margin-top: 8px; border: 1px solid #ddd; border-radius: 6px; font-size: 15px; box-sizing: border-box; }
+        /* Dashboard */
+        #view-admin { display: none; max-width: 1100px; }
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; margin-bottom: 20px; }
+        .stat-card { background: var(--primary); color: white; padding: 15px; border-radius: 10px; text-align: center; }
+        table { width: 100%; border-collapse: collapse; font-size: 11px; background: white; margin-top: 15px; }
+        th, td { padding: 10px; border: 1px solid #eee; text-align: left; }
+        .row-risk { background: #fff1f1; border-left: 4px solid var(--danger); }
         
-        .rating { display: flex; justify-content: space-between; padding: 10px 0; }
-        .rating label { font-size: 14px; text-align: center; width: 18%; background: #eee; padding: 10px 0; border-radius: 6px; cursor: pointer; margin-top:0; }
-        input[type="radio"]:checked + label { background: var(--primary); color: white; }
-        input[type="radio"] { display: none; }
-        
-        #admin-view { margin-top: 20px; width: 100%; max-width: 1250px; display: none; background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
-        .bi-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; margin-bottom: 25px; }
-        .bi-card { padding: 15px; border-radius: 8px; text-align: center; color: white; position: relative; cursor: help; }
-        .bi-total { background: var(--primary); } .bi-ventas { background: var(--accent); } .bi-fuga { background: var(--danger); } .bi-mercado { background: var(--purple); }
-        .bi-card big { display: block; font-size: 28px; font-weight: bold; }
-        
-        /* Tooltip para el porcentaje de competencia */
-        .bi-card .tooltip { visibility: hidden; width: 180px; background-color: #333; color: #fff; text-align: left; border-radius: 6px; padding: 10px; position: absolute; z-index: 1; bottom: 125%; left: 50%; margin-left: -90px; opacity: 0; transition: opacity 0.3s; font-size: 11px; line-height: 1.5; }
-        .bi-card:hover .tooltip { visibility: visible; opacity: 1; }
-
-        .ia-search-box { background: #2c3e50; padding: 15px; border-radius: 8px; margin-bottom: 20px; display: flex; gap: 10px; color: white; align-items: center; }
-        .ia-search-box input { background: white; color: black; margin-top: 0; flex: 2; }
-
-        #reporte-asesor { display: none; background: #fff; padding: 20px; border-radius: 10px; margin-bottom: 20px; border: 1px solid #dee2e6; border-left: 8px solid var(--info); position: relative; }
-        .progress-container { margin: 10px 0; background: #eee; border-radius: 10px; height: 12px; overflow: hidden; }
-        .progress-bar { height: 100%; background: var(--accent); transition: width 0.6s ease; }
-        
-        .tip-box { margin-top: 10px; padding: 12px; border-radius: 6px; font-size: 13px; line-height: 1.4; background: #f8f9fa; border-left: 4px solid #ccc; }
-
-        table { width: 100%; border-collapse: collapse; margin-top: 15px; }
-        th, td { padding: 12px; border: 1px solid #eee; text-align: left; font-size: 11px; }
-        th { background: #f8f9fa; }
-        
-        .risk-row-critical { background: #ffebeb !important; border-left: 5px solid var(--danger); } 
-        .risk-row-warning { background: #fff9e6 !important; border-left: 5px solid var(--warning); }
-
-        button { cursor: pointer; border: none; font-weight: bold; transition: 0.2s; }
-        #seccion-fuga, #seccion-contacto { display: none; margin-top: 15px; padding: 15px; border-radius: 8px; border: 1px dashed #ccc; }
-        #seccion-fuga { background: #fff8f0; border-color: var(--warning); }
-        #seccion-contacto { background: #f0f7ff; border-color: var(--primary); }
-
-        .live-indicator { font-size: 10px; color: var(--accent); font-weight: bold; text-align: right; margin-bottom: 5px; animation: blink 2s infinite; }
-        @keyframes blink { 0% { opacity: 1; } 50% { opacity: 0.3; } 100% { opacity: 1; } }
+        #view-survey, #view-emitter { display: block; }
     </style>
 </head>
 <body>
 
-    <div id="survey-view" class="card">
-        <h3 style="font-size: 11px; opacity: 0.6; letter-spacing: 2px;">GESTIÓN DE CALIDAD - USHUAIA</h3>
-        <h3>Tu opinión nos ayuda a mejorar</h3>
+<div id="app-container" style="max-width: 1200px; margin: auto;">
 
-        <label>¿Quién te atendió?</label>
-        <select id="asesor" onchange="evaluar()">
-            <option value="">Seleccione asesor...</option>
-            <option>PUESTO 1 - MIGUEL</option><option>PUESTO 2 - CAROLINA</option>
-            <option>PUESTO 3 - RODRIGO</option><option>PUESTO 4 - PAULA</option>
-            <option>VENTAS - VICTORIA</option><option>VENTAS - LARA</option>
-            <option>VENTAS - EVELIN</option>
+    <div id="view-emitter" class="card">
+        <h3 style="text-align:center; margin:0">Registro de Atención</h3>
+        <p style="text-align:center; font-size:12px; color:#666">Habilitá al cliente y enviá la encuesta por WhatsApp.</p>
+        
+        <label>Nro. de Cliente (CRM):</label>
+        <input type="text" id="em-nro" placeholder="Ej: 18701">
+        
+        <label>DNI del Cliente:</label>
+        <input type="text" id="em-dni" placeholder="Para validar acceso">
+
+        <label>WhatsApp del Cliente (Solo números):</label>
+        <input type="text" id="em-phone" placeholder="Ej: 2901448780">
+
+        <label>Asesor:</label>
+        <select id="em-asesor">
+            <option>MIGUEL GALVAN</option><option>RODRIGO</option><option>CAROLINA</option><option>PAULA</option>
         </select>
 
-        <label>¿Cómo calificarías la atención hoy?</label>
-        <div class="rating">
-            <input type="radio" name="star" id="s1" value="1" onclick="evaluar()"><label for="s1">1 ⭐</label>
-            <input type="radio" name="star" id="s2" value="2" onclick="evaluar()"><label for="s2">2 ⭐</label>
-            <input type="radio" name="star" id="s3" value="3" onclick="evaluar()"><label for="s3">3 ⭐</label>
-            <input type="radio" name="star" id="s4" value="4" onclick="evaluar()"><label for="s4">4 ⭐</label>
-            <input type="radio" name="star" id="s5" value="5" onclick="evaluar()"><label for="s5">5 ⭐</label>
-        </div>
-
-        <label>¿Resolvimos tu consulta?</label>
-        <select id="resuelto" onchange="evaluar()">
-            <option value="Si">Sí</option><option value="No">No</option>
-        </select>
-
-        <label>Comentarios adicionales:</label>
-        <textarea id="comentario" rows="2" placeholder="Ej: Precios, problemas técnicos, otra empresa..." oninput="evaluar()"></textarea>
-
-        <div id="seccion-fuga">
-            <label>📊 Empresa competencia:</label>
-            <select id="competencia">
-                <option value="Ninguna">Ninguna</option>
-                <option value="STARLINK">STARLINK</option><option value="SUPERCANAL">SUPERCANAL</option>
-                <option value="OOPS">OOPS</option><option value="AUSTRALNET">AUSTRALNET</option>
-                <option value="PERSONAL/MOVISTAR">PERSONAL / MOVISTAR</option>
-            </select>
-            <label>Oferta ofrecida por ellos:</label>
-            <input type="text" id="oferta_comp" placeholder="Monto o Plan">
-        </div>
-
-        <div id="seccion-contacto">
-            <label>DNI o Celular (Para seguimiento):</label>
-            <input type="text" id="clienteId" placeholder="Tu número de contacto">
-        </div>
-
-        <button id="btnEnviar" onclick="guardar()" style="background:var(--primary); color:white; margin-top:20px;">Enviar Encuesta</button>
-        <p onclick="abrirAdmin()" style="text-align:center; font-size:10px; color:#ccc; cursor:pointer; margin-top:20px;">⚙️ ACCESO DASHBOARD</p>
+        <button onclick="procesarYEnviar()" class="btn-send">🚀 HABILITAR Y ENVIAR</button>
+        <p class="nav-link" onclick="accesoAdmin()">⚙️ PANEL INTERNO</p>
     </div>
 
-    <div id="admin-view">
-        <div class="live-indicator">● NUBE ACTIVA - TIEMPO REAL</div>
-        <h2 style="text-align:center; color:var(--primary); margin-top:0;">BI Visión: Inteligencia de Mercado</h2>
-        
-        <div class="ia-search-box">
-            <input type="text" id="search-input" placeholder="IA Search: Filtrar por cualquier dato..." onkeyup="actualizarDash()">
-            <button onclick="descargarCSV()" style="width:auto; background:var(--accent); margin-top:0;">📊 Exportar CSV</button>
+    <div id="view-survey" class="card" style="display:none">
+        <div id="survey-auth">
+            <h3 style="text-align:center">Validación</h3>
+            <label>Ingresá tu DNI para continuar:</label>
+            <input type="text" id="auth-dni" placeholder="Tu número de DNI">
+            <button onclick="validarDNI()" class="btn-send" style="background:var(--primary)">ENTRAR</button>
         </div>
+        <div id="survey-main" style="display:none">
+            <h3 style="color:var(--primary)">Tu opinión importa</h3>
+            <label>¿Cómo calificarías nuestra atención? (1-5)</label>
+            <select id="q-atencion"><option value="5">Excelente ⭐⭐⭐⭐⭐</option><option value="4">Muy Buena ⭐⭐⭐⭐</option><option value="3">Buena ⭐⭐⭐</option><option value="2">Regular ⭐⭐</option><option value="1">Mala ⭐</option></select>
+            
+            <label>¿Nos recomendarías? (0 al 10)</label>
+            <input type="number" id="q-nps" min="0" max="10" value="10">
 
-        <div class="bi-grid">
-            <div class="bi-card bi-total"><big id="stat-total">0</big><span>Muestras</span></div>
-            <div class="bi-card bi-ventas"><big id="stat-ok">0</big><span>Resolución</span></div>
-            <div class="bi-card bi-fuga"><big id="stat-baja">0</big><span>Riesgos</span></div>
-            <div class="bi-card bi-mercado" id="card-comp">
-                <big id="stat-comp">0</big><span>Competencia</span>
-                <div class="tooltip" id="market-share-list">Cargando datos...</div>
+            <label>Comentarios adicionales:</label>
+            <textarea id="q-comentario" rows="3" oninput="detectarBaja()"></textarea>
+
+            <div id="div-baja" style="display:none; background:#fff3cd; padding:10px; border-radius:8px; margin-top:10px">
+                <label>Detectamos una posible baja. ¿A qué empresa pensás cambiarte?</label>
+                <select id="q-comp"><option>Ninguna</option><option>STARLINK</option><option>TV FUEGO</option><option>OOPS</option><option>MOVISTAR</option></select>
             </div>
-        </div>
 
-        <div id="reporte-asesor">
-            <h3 id="rep-nombre" style="text-align:left; color:var(--info); margin-bottom:5px;"></h3>
-            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:30px;">
-                <div>
-                    <span id="lab-satis" style="font-size:12px;"></span>
-                    <div class="progress-container"><div id="bar-satis" class="progress-bar"></div></div>
-                    <span id="lab-resol" style="font-size:12px;"></span>
-                    <div class="progress-container"><div id="bar-resol" class="progress-bar" style="background:var(--info);"></div></div>
-                </div>
-                <div>
-                    <span style="font-size: 11px; font-weight: bold; color: #666;">COACHING AI:</span>
-                    <div id="coaching-box" class="tip-box"></div>
-                </div>
-            </div>
+            <button onclick="guardarEncuesta()" class="btn-send">ENVIAR ENCUESTA</button>
         </div>
-
-        <div style="background:#eee; padding:10px; border-radius:8px; display:flex; gap:10px; margin-bottom:15px;">
-            <select id="filterAsesor" onchange="actualizarDash()" style="margin:0; flex:1">
-                <option value="Todos">Filtro Global</option>
-                <option>PUESTO 1 - MIGUEL</option><option>PUESTO 2 - CAROLINA</option>
-                <option>PUESTO 3 - RODRIGO</option><option>PUESTO 4 - PAULA</option>
-                <option>VENTAS - VICTORIA</option><option>VENTAS - LARA</option>
-                <option>VENTAS - EVELIN</option>
-            </select>
-            <button onclick="cerrarAdmin()" style="margin:0; width:auto; background:#666; color:white;">Volver</button>
-        </div>
-        
-        <table id="main-table">
-            <thead><tr><th>Fecha</th><th>Asesor</th><th>Pts</th><th>Resol.</th><th>Contacto</th><th>Empresa</th><th>Oferta</th><th>Comentario</th></tr></thead>
-            <tbody id="table-body"></tbody>
-        </table>
     </div>
 
-    <script>
-        const FB_URL = "https://vision-bi-6bd64-default-rtdb.firebaseio.com/encuestas.json";
-        let logsGlobal = [];
+    <div id="view-admin" class="card">
+        <h2 style="text-align:center">BI Visión - Dashboard</h2>
+        <div class="stats-grid">
+            <div class="stat-card"> <h2 id="st-total">0</h2> <span>MUESTRAS</span> </div>
+            <div class="stat-card" style="background:var(--accent)"> <h2 id="st-nps">0</h2> <span>NPS</span> </div>
+            <div class="stat-card" style="background:var(--danger)"> <h2 id="st-risk">0</h2> <span>RIESGOS</span> </div>
+        </div>
+        <input type="text" id="search" placeholder="Filtrar por asesor..." onkeyup="dibujarTabla()">
+        <div style="overflow-x:auto">
+            <table>
+                <thead><tr><th>Fecha</th><th>Cliente</th><th>Asesor</th><th>Calif.</th><th>NPS</th><th>Comp.</th><th>Comentario</th></tr></thead>
+                <tbody id="tabla-body"></tbody>
+            </table>
+        </div>
+        <button onclick="location.reload()" style="margin-top:10px; background:#666; color:white">Volver</button>
+    </div>
 
-        window.onload = function() {
-            cargarDatosDesdeNube();
-            if (sessionStorage.getItem('isAdminActive') === 'true') { mostrarPanelAdmin(); }
-            setInterval(() => { if (sessionStorage.getItem('isAdminActive') === 'true') { cargarDatosDesdeNube(); } }, 10000);
+</div>
+
+<script>
+    const FIREBASE = "https://vision-bi-6bd64-default-rtdb.firebaseio.com/";
+    const URL_WEB = window.location.href; // Toma la URL actual de GitHub
+    let rawData = [];
+
+    // --- LÓGICA EMISOR ---
+    async function procesarYEnviar() {
+        const nro = document.getElementById('em-nro').value;
+        const dni = document.getElementById('em-dni').value;
+        const tel = document.getElementById('em-phone').value;
+        const ase = document.getElementById('em-asesor').value;
+
+        if(!nro || !dni || !tel) return alert("Completá todos los campos.");
+
+        // 1. Guardar Token en Firebase
+        const token = { nro: nro, dni: dni, asesor: ase, usado: false, fecha: new Date().toISOString() };
+        await fetch(`${FIREBASE}tokens/${dni}.json`, { method: 'PUT', body: JSON.stringify(token) });
+
+        // 2. Generar mensaje de WhatsApp
+        const msj = `Hola! Gracias por elegir Ushuaia Visión. Valoramos mucho tu opinión sobre nuestra atención hoy. Podés completar la encuesta aquí: ${URL_WEB} (Validá con tu DNI: ${dni})`;
+        const linkWs = `https://wa.me/54${tel}?text=${encodeURIComponent(msj)}`;
+
+        // 3. Abrir WhatsApp y resetear
+        window.open(linkWs, '_blank');
+        alert("✅ Cliente habilitado y chat de WhatsApp abierto.");
+        location.reload();
+    }
+
+    // --- LÓGICA ENCUESTA ---
+    async function validarDNI() {
+        const dni = document.getElementById('auth-dni').value;
+        const res = await fetch(`${FIREBASE}tokens/${dni}.json`);
+        const data = await res.json();
+
+        if(data && !data.usado) {
+            window.activeToken = data;
+            document.getElementById('survey-auth').style.display = 'none';
+            document.getElementById('survey-main').style.display = 'block';
+        } else {
+            alert("DNI no habilitado o encuesta ya enviada.");
+        }
+    }
+
+    function detectarBaja() {
+        const txt = document.getElementById('q-comentario').value.toLowerCase();
+        const alert = ["baja", "cancelar", "irme", "fuego", "starlink", "caro", "precio"];
+        document.getElementById('div-baja').style.display = alert.some(word => txt.includes(word)) ? 'block' : 'none';
+    }
+
+    async function guardarEncuesta() {
+        const enc = {
+            ...window.activeToken,
+            calif: document.getElementById('q-atencion').value,
+            nps: document.getElementById('q-nps').value,
+            comentario: document.getElementById('q-comentario').value,
+            competencia: document.getElementById('q-comp').value,
+            finalizado: new Date().toLocaleString()
         };
 
-        async function cargarDatosDesdeNube() {
-            try {
-                const response = await fetch(FB_URL);
-                const data = await response.json();
-                logsGlobal = data ? Object.values(data) : [];
-                if (sessionStorage.getItem('isAdminActive') === 'true') { actualizarDash(); }
-            } catch (e) { console.error("Error nube", e); }
+        await fetch(`${FIREBASE}encuestas.json`, { method: 'POST', body: JSON.stringify(enc) });
+        await fetch(`${FIREBASE}tokens/${window.activeToken.dni}.json`, { method: 'PATCH', body: JSON.stringify({usado:true}) });
+        alert("¡Muchas gracias por tu tiempo!");
+        location.reload();
+    }
+
+    // --- LÓGICA ADMIN ---
+    async function accesoAdmin() {
+        if(prompt("Clave:") === "Vision2026") {
+            document.getElementById('view-emitter').style.display = 'none';
+            document.getElementById('view-admin').style.display = 'block';
+            const res = await fetch(`${FIREBASE}encuestas.json`);
+            const json = await res.json();
+            rawData = json ? Object.values(json) : [];
+            dibujarTabla();
         }
+    }
 
-        function evaluar() {
-            const st = document.querySelector('input[name="star"]:checked')?.value;
-            const re = document.getElementById('resuelto').value;
-            const t = document.getElementById('comentario').value.toLowerCase();
-            const esRiesgo = ["baja", "cancelar", "irme", "competencia", "starlink", "oops", "caro"].some(p => t.includes(p));
-            document.getElementById('seccion-fuga').style.display = esRiesgo ? 'block' : 'none';
-            document.getElementById('seccion-contacto').style.display = (st <= 3 || re === "No" || esRiesgo) ? 'block' : 'none';
-        }
+    function dibujarTabla() {
+        const body = document.getElementById('tabla-body');
+        const filter = document.getElementById('search').value.toLowerCase();
+        body.innerHTML = "";
+        let npsTotal = 0, riesgos = 0;
 
-        async function guardar() {
-            const a = document.getElementById('asesor').value;
-            const s = document.querySelector('input[name="star"]:checked')?.value;
-            if(!a || !s) return alert("Selecciona asesor y calificación.");
-
-            const d = { 
-                fecha: new Date().toLocaleDateString(), 
-                asesor: a, satis: parseInt(s), 
-                resuelto: document.getElementById('resuelto').value, 
-                contacto: document.getElementById('clienteId').value || "N/A",
-                comentario: document.getElementById('comentario').value || "S/C", 
-                competencia: document.getElementById('competencia').value,
-                oferta: document.getElementById('oferta_comp').value || "N/A"
-            };
-
-            try {
-                await fetch(FB_URL, { method: 'POST', body: JSON.stringify(d) });
-                alert("Enviado correctamente.");
-                location.reload();
-            } catch (e) { alert("Error de conexión."); }
-        }
-
-        function actualizarDash() {
-            const q = document.getElementById('search-input').value.toLowerCase();
-            const fAsesor = document.getElementById('filterAsesor').value;
-            const body = document.getElementById('table-body');
-            body.innerHTML = "";
-            let ok = 0, riesgosBaja = 0, compCount = 0, sumaSatis = 0;
-            let mktShare = {};
-
-            const filtrados = logsGlobal.filter(l => (JSON.stringify(l).toLowerCase().includes(q) && (fAsesor === "Todos" || l.asesor.includes(fAsesor))));
-            
-            filtrados.slice().reverse().forEach(l => {
-                sumaSatis += l.satis;
-                const txt = l.comentario.toLowerCase();
-                const esBaja = ["baja", "cancelar", "irme", "competencia", "oops", "starlink"].some(p => txt.includes(p));
+        rawData.reverse().forEach(e => {
+            if(e.asesor.toLowerCase().includes(filter)) {
+                npsTotal += parseInt(e.nps);
+                const isRisk = (e.nps <= 6 || e.competencia !== "Ninguna");
+                if(isRisk) riesgos++;
                 
-                if(l.resuelto === "Si") ok++;
-                if(esBaja) riesgosBaja++;
-                
-                if(l.competencia !== "Ninguna") {
-                    compCount++;
-                    mktShare[l.competencia] = (mktShare[l.competencia] || 0) + 1;
-                }
-
-                let claseFila = (esBaja) ? "risk-row-critical" : (l.satis <= 2) ? "risk-row-warning" : "";
-
-                body.innerHTML += `<tr class="${claseFila}">
-                    <td>${l.fecha}</td><td>${l.asesor}</td><td>${l.satis}⭐</td>
-                    <td>${l.resuelto}</td><td>${l.contacto}</td><td>${l.competencia}</td>
-                    <td>${l.oferta}</td><td>${l.comentario}</td>
+                body.innerHTML += `<tr class="${isRisk ? 'row-risk' : ''}">
+                    <td>${e.finalizado.split(',')[0]}</td><td>${e.nro}</td><td>${e.asesor}</td>
+                    <td>${e.calif}⭐</td><td>${e.nps}</td><td>${e.competencia}</td><td>${e.comentario}</td>
                 </tr>`;
-            });
+            }
+        });
 
-            // Actualizar Contadores
-            document.getElementById('stat-total').innerText = filtrados.length;
-            document.getElementById('stat-ok').innerText = ok;
-            document.getElementById('stat-baja').innerText = riesgosBaja;
-            document.getElementById('stat-comp').innerText = compCount;
-
-            // --- LÓGICA DE MARKET SHARE (TOOLTIP) ---
-            let shareHtml = "<b>Distribución de Competencia:</b><br>";
-            if(compCount > 0) {
-                for (let emp in mktShare) {
-                    let porc = ((mktShare[emp] / compCount) * 100).toFixed(0);
-                    shareHtml += `• ${emp}: ${porc}%<br>`;
-                }
-            } else { shareHtml = "No hay menciones de competencia."; }
-            document.getElementById('market-share-list').innerHTML = shareHtml;
-
-            // --- LÓGICA COACHING AI ---
-            const rep = document.getElementById('reporte-asesor');
-            if(fAsesor !== "Todos" && filtrados.length > 0) {
-                const prom = (sumaSatis / filtrados.length).toFixed(1);
-                const efiv = ((ok / filtrados.length) * 100).toFixed(0);
-                rep.style.display = "block";
-                document.getElementById('rep-nombre').innerText = fAsesor;
-                document.getElementById('lab-satis').innerText = `Satis: ${prom}/5⭐`;
-                document.getElementById('bar-satis').style.width = (prom * 20) + "%";
-                document.getElementById('lab-resol').innerText = `Resol: ${efiv}%`;
-                document.getElementById('bar-resol').style.width = efiv + "%";
-
-                const coach = document.getElementById('coaching-box');
-                const feedbackText = filtrados.map(l => l.comentario.toLowerCase()).join(" ");
-                
-                if(prom >= 4.5 && efiv >= 85) {
-                    coach.innerHTML = "<b>Análisis AI:</b> Nivel experto. Sin fugas detectadas.";
-                } else if(feedbackText.includes("oops") || feedbackText.includes("starlink")) {
-                    coach.innerHTML = "<b>Alerta de Mercado:</b> El asesor está perdiendo terreno frente a la competencia local. Reforzar comparativa de beneficios.";
-                } else {
-                    coach.innerHTML = "<b>Sugerencia:</b> Revisar tiempos de respuesta. El cliente valora la agilidad.";
-                }
-            } else { rep.style.display = "none"; }
-        }
-
-        function abrirAdmin() { if(prompt("Clave:") === "Vision2026") { sessionStorage.setItem('isAdminActive', 'true'); mostrarPanelAdmin(); } }
-        function mostrarPanelAdmin() { document.getElementById('survey-view').style.display='none'; document.getElementById('admin-view').style.display='block'; actualizarDash(); }
-        function cerrarAdmin() { sessionStorage.setItem('isAdminActive', 'false'); document.getElementById('admin-view').style.display='none'; document.getElementById('survey-view').style.display='block'; }
-        
-        function descargarCSV() {
-            let csv = "\uFEFFFecha;Asesor;Pts;Resolvio;Contacto;Empresa;Oferta;Comentario\n";
-            logsGlobal.forEach(l => { csv += `${l.fecha};${l.asesor};${l.satis};${l.resuelto};${l.contacto};${l.competencia};${l.oferta};${l.comentario}\n`; });
-            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-            const a = document.createElement('a'); a.href = window.URL.createObjectURL(blob); a.download = 'Vision_Ushuaia_Reporte.csv'; a.click();
-        }
-    </script>
-</body>
-</html>
+        document.getElementById('st-total').innerText = rawData.length;
+        document.getElementById('st-nps').innerText = rawData.length ? (npsTotal/rawData.length).toFixed(1) : 0;
+        document.getElementById('st-risk').innerText = riesgos;
+    }
+</script>
 </body>
 </html>
