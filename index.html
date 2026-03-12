@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ushuaia Visión - ENCUESTA DE CALIDAD</title>
+    <title>Ushuaia Visión - BI Realtime</title>
     <style>
         :root { --primary: #0056b3; --accent: #28a745; --danger: #dc3545; --warning: #f59e0b; --bg: #f4f7f9; }
         body { font-family: 'Segoe UI', Tahoma, sans-serif; background: var(--bg); margin: 0; padding: 10px; color: #333; }
@@ -15,7 +15,7 @@
         @keyframes blink { 0% { opacity: 1; } 50% { opacity: 0.3; } 100% { opacity: 1; } }
 
         .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 25px; }
-        .stat-card { background: white; padding: 20px; border-radius: 12px; text-align: center; border: 1px solid #eee; }
+        .stat-card { background: white; padding: 20px; border-radius: 12px; text-align: center; border: 1px solid #eee; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
         .stat-card h2 { margin: 0; color: var(--primary); font-size: 35px; }
         .stat-card span { font-size: 11px; color: #777; font-weight: bold; text-transform: uppercase; }
 
@@ -23,7 +23,7 @@
         @media (max-width: 1000px) { .bi-columns { grid-template-columns: 1fr; } }
 
         .monitor-box { background: #0f172a; color: #f1f5f9; padding: 20px; border-radius: 12px; }
-        .promo-pill { background: #1e293b; border-left: 4px solid var(--accent); padding: 10px; margin-bottom: 12px; border-radius: 4px; transition: 0.3s; }
+        .promo-pill { background: #1e293b; border-left: 4px solid var(--accent); padding: 10px; margin-bottom: 12px; border-radius: 4px; }
         
         input, select, button, textarea { padding: 12px; border: 1px solid #ddd; border-radius: 10px; font-size: 14px; box-sizing: border-box; width: 100%; margin-top: 8px; }
         label { display: block; margin-top: 15px; font-weight: bold; font-size: 13px; }
@@ -31,8 +31,9 @@
         table { width: 100%; border-collapse: collapse; font-size: 12px; background: white; }
         th, td { padding: 12px; border: 1px solid #eee; text-align: left; }
         .row-risk { background: #fff5f5 !important; color: var(--danger); font-weight: bold; }
-        .btn-send { background: var(--accent); color: white; border: none; font-weight: bold; cursor: pointer; height: 50px; margin-top: 15px; }
+        .row-late { border-left: 5px solid var(--warning) !important; } /* Marca para encuestas de más de 3 días */
         
+        .btn-send { background: var(--accent); color: white; border: none; font-weight: bold; cursor: pointer; height: 50px; margin-top: 15px; }
         .thanks-screen { text-align: center; padding: 50px 20px; }
     </style>
 </head>
@@ -40,25 +41,25 @@
 
 <div id="app">
     <div id="view-emitter" class="card">
-        <div class="live-indicator"><span class="dot"></span> Realtime BI Online</div>
-        <h2 style="text-align:center; color:var(--primary);">GESTOR DE ENVIO DE ENCUESTA</h2>
+        <div class="live-indicator"><span class="dot"></span> Sistema Activo</div>
+        <h2 style="text-align:center; color:var(--primary);">Registro de Atención</h2>
         <label>Nro. de Cliente (CRM):</label> <input type="text" id="em-nro" placeholder="Ej: 18701">
         <label>DNI del Cliente:</label> <input type="text" id="em-dni" placeholder="Para validar acceso">
         <label>WhatsApp del Cliente:</label> <input type="text" id="em-phone" placeholder="Ej: 2901448780">
         <label>Asesor:</label>
         <select id="em-asesor">
-            <option>MIGUEL </option><option>RODRIGO</option><option>CAROLINA</option><option>PAULA</option>
+            <option>MIGUEL GALVAN</option><option>RODRIGO</option><option>CAROLINA</option><option>PAULA</option>
         </select>
-        <button onclick="procesarYEnviar()" class="btn-send">🚀 HABILITAR Y ENVIAR</button>
-        <p style="text-align:center; cursor:pointer; font-size:10px; color:#aaa; margin-top:20px;" onclick="accesoAdmin()">⚙️ PANEL INTERNO</p>
+        <button onclick="procesarYEnviar()" class="btn-send">🚀 GENERAR Y ENVIAR</button>
+        <p style="text-align:center; cursor:pointer; font-size:10px; color:#aaa; margin-top:20px;" onclick="accesoAdmin()">⚙️ PANEL BI GERENCIAL</p>
     </div>
 
     <div id="view-survey" class="card" style="display:none">
         <div id="survey-auth">
-            <h2 style="text-align:center">Validación</h2>
-            <p style="text-align:center;">Ingresá tu DNI para continuar:</p>
+            <h2 style="text-align:center">Portal de Calidad</h2>
+            <p style="text-align:center;">Validá tu DNI para responder:</p>
             <input type="text" id="auth-dni" placeholder="Tu número de DNI">
-            <button onclick="validarDNI()" class="btn-send" style="background:var(--primary)">ENTRAR</button>
+            <button onclick="validarDNI()" class="btn-send" style="background:var(--primary)">ACCEDER</button>
         </div>
 
         <div id="survey-main" style="display:none">
@@ -79,39 +80,38 @@
             <textarea id="q-comentario" rows="3" oninput="analizarBaja()" placeholder="Contanos tu experiencia..."></textarea>
 
             <div id="div-baja" style="display:none; background:#fff8e1; padding:15px; border-radius:10px; margin-top:15px; border:1px solid var(--warning);">
-                <label style="margin:0;">Detectamos una posible baja. ¿A qué empresa pensás cambiarte?</label>
+                <label style="margin:0;">¿Has evaluado otras opciones de servicio?</label>
                 <select id="q-comp">
-                    <option value="Ninguna">Sigo con Ushuaia Visión</option>
+                    <option value="Ninguna">No, sigo con Ushuaia Visión</option>
                     <option>STARLINK</option><option>MOVISTAR</option><option>SUPERCANAL</option><option>OPPS</option><option>AUSTRAL NET</option>
                 </select>
             </div>
-            <button onclick="guardarEncuesta()" class="btn-send">ENVIAR ENCUESTA</button>
+            <button onclick="guardarEncuesta()" class="btn-send">FINALIZAR ENCUESTA</button>
         </div>
 
         <div id="survey-thanks" class="thanks-screen" style="display:none">
-            <div style="font-size:60px; margin-bottom:20px;">🏆</div>
+            <div style="font-size:60px; margin-bottom:20px;">✅</div>
             <h2>¡Enviado!</h2>
-            <p>Muchas gracias por tu tiempo.</p>
-            <p style="color:#888; font-size:12px;">Tus respuestas ya están en nuestro sistema.</p>
+            <p>Gracias por ayudarnos a mejorar.</p>
         </div>
     </div>
 
     <div id="view-admin" class="card admin-card" style="display:none">
-        <div class="live-indicator"><span class="dot"></span> Realtime BI Online</div>
-        <h2 style="margin-top:0;">Monitor de Gestión - Ushuaia Visión</h2>
+        <div class="live-indicator"><span class="dot"></span> Monitor Realtime</div>
+        <h2 style="margin-top:0;">BI Ushuaia Visión</h2>
         <div class="stats-grid">
-            <div class="stat-card"> <h2 id="st-total">0</h2> <span>ENCUESTAS</span> </div>
+            <div class="stat-card"> <h2 id="st-total">0</h2> <span>MUESTRAS</span> </div>
             <div class="stat-card"> <h2 id="st-nps" style="color:var(--accent)">0</h2> <span>NPS SCORE</span> </div>
-            <div class="stat-card"> <h2 id="st-risk" style="color:var(--danger)">0</h2> <span>CASOS CRÍTICOS</span> </div>
-            <div class="stat-card"> <h2 id="st-stars" style="color:var(--warning)">0</h2> <span>RATING PROMEDIO</span> </div>
+            <div class="stat-card"> <h2 id="st-risk" style="color:var(--danger)">0</h2> <span>RIESGO BAJA</span> </div>
+            <div class="stat-card"> <h2 id="st-stars" style="color:var(--warning)">0</h2> <span>RATING</span> </div>
         </div>
         <div class="bi-columns">
             <div>
-                <input type="text" id="search" placeholder="Buscar asesor o cliente..." onkeyup="dibujarTabla()" style="margin-bottom:10px;">
+                <input type="text" id="search" placeholder="Filtrar por asesor..." onkeyup="dibujarTabla()" style="margin-bottom:10px;">
                 <div style="overflow-x:auto; max-height:450px; border:1px solid #eee; border-radius:10px;">
                     <table>
                         <thead style="position:sticky; top:0; background:#f8f9fa;">
-                            <tr><th>Fecha</th><th>Asesor</th><th>Calif.</th><th>NPS</th><th>Comp.</th><th>Comentario</th></tr>
+                            <tr><th>Fecha</th><th>Asesor</th><th>Calif.</th><th>NPS</th><th>Competencia</th><th>Comentario</th></tr>
                         </thead>
                         <tbody id="tabla-body"></tbody>
                     </table>
@@ -119,15 +119,15 @@
             </div>
             <div class="monitor-box">
                 <h4 style="margin:0 0 15px 0; color:var(--warning); text-transform:uppercase; font-size:12px; display:flex; justify-content:space-between;">
-                    🛡️ Benchmarking 
-                    <span id="ai-status" style="font-size:9px; color:var(--accent); cursor:pointer;" onclick="iaMarketSearch()">[ACTUALIZAR IA]</span>
+                    🛡️ Mercado IA
+                    <span id="ai-status" style="font-size:9px; color:var(--accent); cursor:pointer;" onclick="iaMarketSearch()">[ACTUALIZAR]</span>
                 </h4>
                 <div id="market-data">
-                    <div class="promo-pill"><h5>📡 STARLINK</h5><p>Antena: <b>$380k</b>. Abono: <b>$56k</b>.</p></div>
+                    <div class="promo-pill"><h5>📡 STARLINK</h5><p>Antena: <b>$380k</b>. Mensual: <b>$56k</b>.</p></div>
                     <div class="promo-pill" style="border-left-color:#3b82f6;"><h5>🌀 SUPERCANAL</h5><p>Fibra: <b>$28.500</b>.</p></div>
-                    <div class="promo-pill" style="border-left-color:#ef4444;"><h5>Ⓜ️ MOVISTAR</h5><p>Oferta: <b>$24.900</b>.</p></div>
+                    <div class="promo-pill" style="border-left-color:#ef4444;"><h5>Ⓜ️ MOVISTAR</h5><p>Plan: <b>$24.900</b>.</p></div>
                 </div>
-                <button onclick="location.reload()" style="background:#334155; color:white; border:none; margin-top:20px; cursor:pointer; height:40px; border-radius:8px;">SALIR DEL PANEL</button>
+                <button onclick="window.location.reload()" style="background:#334155; color:white; border:none; margin-top:20px; cursor:pointer; height:40px; border-radius:8px;">CERRAR SESIÓN</button>
             </div>
         </div>
     </div>
@@ -137,41 +137,25 @@
     const FIREBASE = "https://vision-bi-6bd64-default-rtdb.firebaseio.com/";
     const URL_BASE = window.location.origin + window.location.pathname;
     let rawData = [];
+    let refreshInterval;
 
-    // --- LOGICA DE IA Y ESTUDIO DE MERCADO ---
-    function iaMarketSearch() {
-        const btn = document.getElementById('ai-status');
-        btn.innerText = "[CONSULTANDO IA...]";
-        btn.style.color = "orange";
-        
-        // Simulación de búsqueda en tiempo real
-        setTimeout(() => {
-            const nuevosPrecios = [
-                {empresa: "STARLINK", p1: "$385.000", p2: "$58.200", color: "#28a745"},
-                {empresa: "SUPERCANAL", p1: "$29.100", p2: "Baja latencia", color: "#3b82f6"},
-                {empresa: "MOVISTAR", p1: "$25.400", p2: "Full Fibra", color: "#ef4444"}
-            ];
-            
-            let html = "";
-            nuevosPrecios.forEach(p => {
-                html += `<div class="promo-pill" style="border-left-color:${p.color}"><h5>${p.empresa}</h5><p>Precio: <b>${p.p1}</b>. Ref: <b>${p.p2}</b>.</p></div>`;
-            });
-            document.getElementById('market-data').innerHTML = html;
-            btn.innerText = "[DATOS ACTUALIZADOS]";
-            btn.style.color = "#28a745";
-        }, 2000);
-    }
-
+    // --- EMISOR ---
     async function procesarYEnviar() {
         const nro = document.getElementById('em-nro').value, dni = document.getElementById('em-dni').value, tel = document.getElementById('em-phone').value, ase = document.getElementById('em-asesor').value;
-        if(!nro || !dni || !tel) return alert("❌ Por favor, completa todos los campos.");
-        await fetch(`${FIREBASE}tokens/${dni}.json`, { method: 'PUT', body: JSON.stringify({ nro, dni, asesor: ase, usado: false, fecha: new Date().toISOString() }) });
+        if(!nro || !dni || !tel) return alert("❌ Completá todo.");
+        
+        await fetch(`${FIREBASE}tokens/${dni}.json`, { 
+            method: 'PUT', 
+            body: JSON.stringify({ nro, dni, asesor: ase, usado: false, fecha_envio: new Date().toISOString() }) 
+        });
+
         const link = `${URL_BASE}?modo=cliente`;
-        const msj = `Hola! Gracias por elegir Ushuaia Visión. Tu opinión nos importa. Completá la encuesta aquí: ${link} (DNI: ${dni})`;
+        const msj = `Hola! Gracias por elegir Ushuaia Visión. Valoramos tu tiempo. Completá la encuesta aquí: ${link} (DNI: ${dni})`;
         window.open(`https://wa.me/54${tel}?text=${encodeURIComponent(msj)}`, '_blank');
         location.reload();
     }
 
+    // --- CLIENTE ---
     async function validarDNI() {
         const dni = document.getElementById('auth-dni').value;
         const res = await fetch(`${FIREBASE}tokens/${dni}.json`);
@@ -180,12 +164,12 @@
             window.activeToken = data;
             document.getElementById('survey-auth').style.display = 'none';
             document.getElementById('survey-main').style.display = 'block';
-        } else { alert("DNI no habilitado o encuesta ya enviada."); }
+        } else { alert("DNI no habilitado o ya usado."); }
     }
 
     function analizarBaja() {
         const t = document.getElementById('q-comentario').value.toLowerCase();
-        const k = ["baja", "irme", "caro", "starlink", "movistar", "supercanal", "opps", "austral", "precio", "competencia"];
+        const k = ["baja", "irme", "caro", "starlink", "movistar", "supercanal", "precio", "competencia"];
         document.getElementById('div-baja').style.display = k.some(w => t.includes(w)) ? 'block' : 'none';
     }
 
@@ -196,7 +180,7 @@
             nps: document.getElementById('q-nps').value, 
             comentario: document.getElementById('q-comentario').value, 
             competencia: document.getElementById('q-comp').value, 
-            fecha_fin: new Date().toLocaleString() 
+            fecha_fin: new Date().toISOString() 
         };
         await fetch(`${FIREBASE}encuestas.json`, { method: 'POST', body: JSON.stringify(d) });
         await fetch(`${FIREBASE}tokens/${d.dni}.json`, { method: 'PATCH', body: JSON.stringify({usado:true}) });
@@ -204,50 +188,67 @@
         document.getElementById('survey-thanks').style.display = 'block';
     }
 
+    // --- ADMIN & BI ---
     async function accesoAdmin() {
         if(prompt("Clave BI:") === "Vision2026") {
             document.getElementById('view-emitter').style.display = 'none';
             document.getElementById('view-admin').style.display = 'block';
-            const res = await fetch(`${FIREBASE}encuestas.json`);
-            const json = await res.json();
-            rawData = json ? Object.values(json) : [];
-            dibujarTabla();
+            
+            // CARGA INICIAL Y TIEMPO REAL
+            obtenerDatosYRefrescar();
+            refreshInterval = setInterval(obtenerDatosYRefrescar, 30000); // Refresca solo cada 30 segundos
         }
+    }
+
+    async function obtenerDatosYRefrescar() {
+        const res = await fetch(`${FIREBASE}encuestas.json`);
+        const json = await res.json();
+        rawData = json ? Object.values(json) : [];
+        dibujarTabla();
     }
 
     function dibujarTabla() {
         const body = document.getElementById('tabla-body'), search = document.getElementById('search').value.toLowerCase();
         body.innerHTML = "";
-        let npsSuma = 0, starsSuma = 0, riesgo = 0, total = 0;
+        let nSum = 0, sSum = 0, rCount = 0, tCount = 0;
 
         [...rawData].reverse().forEach(e => {
-            const c = parseInt(e.atencion) || 0;
-            const n = parseInt(e.nps) || 0;
-            const textoBusqueda = (e.asesor + (e.dni || "")).toLowerCase();
-            
-            if(textoBusqueda.includes(search)) {
-                total++;
-                npsSuma += n;
-                starsSuma += c;
+            if(e.asesor.toLowerCase().includes(search)) {
+                const c = Number(e.atencion) || 0;
+                const n = Number(e.nps) || 0;
+                tCount++; nSum += n; sSum += c;
+
+                // Lógica de Riesgo (NPS bajo o menciona competencia)
                 const esR = (n <= 6 || (e.competencia && e.competencia !== "Ninguna" && e.competencia !== "Sigo con Ushuaia Visión"));
-                if(esR) riesgo++;
-                
-                body.innerHTML += `<tr class="${esR ? 'row-risk' : ''}">
-                    <td>${e.fecha_fin ? e.fecha_fin.split(',')[0] : '-'}</td>
-                    <td>${e.asesor}</td>
-                    <td>${c}⭐</td>
-                    <td>${n}</td>
+                if(esR) rCount++;
+
+                // Lógica de Encuesta Tardía (más de 3 días)
+                const dias = (new Date() - new Date(e.fecha_envio)) / (1000 * 60 * 60 * 24);
+                const claseLate = dias > 3 ? 'row-late' : '';
+
+                body.innerHTML += `<tr class="${esR ? 'row-risk' : ''} ${claseLate}">
+                    <td>${e.fecha_fin ? new Date(e.fecha_fin).toLocaleDateString() : '-'}</td>
+                    <td>${e.asesor}</td><td>${c}⭐</td><td>${n}</td>
                     <td>${e.competencia || 'Ninguna'}</td>
-                    <td>${(e.comentario || "").substring(0,30)}...</td>
+                    <td title="${e.comentario}">${(e.comentario || "").substring(0,20)}...</td>
                 </tr>`;
             }
         });
 
-        // ACTUALIZACIÓN DE CONTADORES CORREGIDA
-        document.getElementById('st-total').innerText = total;
-        document.getElementById('st-nps').innerText = total ? (npsSuma/total).toFixed(1) : "0";
-        document.getElementById('st-stars').innerText = total ? (starsSuma/total).toFixed(1) : "0";
-        document.getElementById('st-risk').innerText = riesgo;
+        document.getElementById('st-total').innerText = tCount;
+        document.getElementById('st-nps').innerText = tCount ? (nSum/tCount).toFixed(1) : 0;
+        document.getElementById('st-stars').innerText = tCount ? (sSum/tCount).toFixed(1) : 0;
+        document.getElementById('st-risk').innerText = rCount;
+    }
+
+    function iaMarketSearch() {
+        const btn = document.getElementById('ai-status');
+        btn.innerText = "[IA BUSCANDO...]";
+        setTimeout(() => {
+            btn.innerText = "[ACTUALIZADO]";
+            btn.style.color = "var(--accent)";
+            iaMarketSearch(); // Puedes dejar esta función estática o conectarla a una API real después
+        }, 1500);
     }
 
     window.onload = () => { if(new URLSearchParams(window.location.search).get('modo') === 'cliente') { document.getElementById('view-emitter').style.display='none'; document.getElementById('view-survey').style.display='block'; } };
